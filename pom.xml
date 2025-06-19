@@ -8,7 +8,7 @@
     <packaging>war</packaging>
 
     <name>babio</name>
-    <description>Migration of Struts project to Spring Boot</description>
+    <description>Babio Spring Boot Project</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -75,6 +75,11 @@
             <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <scope>runtime</scope>
+</dependency>
     </dependencies>
 
     <build>

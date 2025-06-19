@@ -18,7 +18,7 @@ public class DBConnection {
         String password = "Babio@123";
         
         try {
-            Class.forName(driver).newInstance();
+            Class.forName(driver);
             conn = DriverManager.getConnection(url + dbName, userName, password);
         } catch (Exception e) {
             e.printStackTrace();

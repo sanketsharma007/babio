@@ -6,19 +6,15 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage ;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.Vector;
@@ -71,6 +67,8 @@ public class LoginController {
         System.out.println(">>>>>>>>>>>>>>Inside Initiate BA>>>>>>>>>>>");
         System.out.println("Delete the previous BA Image");
         //deleteImage();
+        //model.addAttribute("crewid", loginForm.getCrewid());
+       // model.addAttribute("crewname", loginForm.getCrewname());
 
         System.out.println("<<<<<<<<<<<<<<Inside Initiate BA<<<<<<<<<<<<");
 

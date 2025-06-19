@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html style="height: 100%; width:100%;">
 <head>
+	<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <title>CMS</title>
-<link href="jquery-ui.css" rel="stylesheet">
 <style>/* Stylesheet 1: */
 
 #group2 {
@@ -82,7 +82,7 @@ div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
 </head>
 <body style="height: 100%; width:100%;" onload="onLoad()">
 
-<html:form action="welcome" style="height: 100%; width:100%;">
+<form action="welcome" style="height: 100%; width:100%;">
 <input type="hidden" name="crewid" />
 <input type="hidden" name="barepeat" />
 <input type="hidden" name="camstatus" />
@@ -100,15 +100,15 @@ div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
 	<tr style="background-color: #84c754;" >					
 		<td style="height:10%; width:100%;" align="center" colspan="2">
 		
-			<table style="height:100%; width:100%; ">
+			<table   style="height:100%; width:100%; ">
 				<tr style="background-color: #84c754;">					
 					<td style="height:10%; width:30%;"align="center" >
 						<table id="stat">
 							<tr>
-								<td><bean:write name="LoginForm" property="crewid" /></td>
+								<td th:text="${loginForm.crewid}"></td>
 							</tr>
 							<tr>
-								<td><bean:write name="LoginForm" property="crewname" /></td>
+								<td th:text="${loginForm.crewname}"></td>
 							</tr>
 							
 						</table>
@@ -121,31 +121,45 @@ div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
 						<table id="stat">
 							<tr>
 								<td align="left">Division</td>
-								<td><bean:write name="LoginForm" property="crewdivision" /></td>
+								<td th:text="${loginForm.crewdivision}">
 							</tr>
 							<tr>
 								<td align="left">Zone</td>
-								<td><bean:write name="LoginForm" property="crewzone" /></td>
+								<td th:text="${loginForm.crewzone}">
 							</tr>
-							<td colspan="4" style="text-align:center; padding-top: 60px; border: none;" align="center">
-  <div style="margin-bottom: 30px; font-size: 18px;">
-    Click on the button to start the breath test
-  </div>
-  <div style="display: flex; justify-content: center; gap: 120px;">
-    <button type="button" class="button" onclick="startBreath()">Start Breath Test</button>
-    <button type="button" class="button" onclick="ReturnToCMS()">Back</button>
-  </div>
-</td>
 							
 						</table>
-					</td>	
+					</td>		
 				</tr>	
 			</table>
-			<tr>
-	</tr>
 					
 		</td>					
-	</tr>		
+	</tr>	
+	
+ 	
+ 	
+	<tr>
+		<td style="height:250px; width:100%;" valign="middle" align="center" colspan="2">
+			<div id="output" class="int-box">Click on the button to start the breath test</div>		
+		</td>
+	</tr>
+	
+	<tr> 
+		<td style="height:30%; width:100%;" valign="top" align="center" colspan="2">
+			<div  id="wait"  ></div>			
+		</td>
+	</tr>
+	
+		
+	<tr>
+		 <td valign="middle" align="center">
+                                <button type="button" class="button" onclick="startBreath()">Start Breath</button>
+                            </td>
+                            <td valign="middle" align="center">
+                                <button type="button" class="button" onclick="returnToCMS()">Back</button>
+                            </td>
+		
+	</tr>
 	
 </table>
 </div>
@@ -165,10 +179,10 @@ div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
 					<td style="height:10%; width:30%;"align="center" >
 						<table id="stat">
 							<tr>
-								<td><bean:write name="LoginForm" property="crewid" /></td>
+								<td th:text="${loginForm.crewid}"></td>
 							</tr>
 							<tr>
-								<td><bean:write name="LoginForm" property="crewname" /></td>
+								<td th:text="${loginForm.crewname}"></td>>
 							</tr>
 							
 						</table>
@@ -181,11 +195,11 @@ div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
 						<table id="stat">
 							<tr>
 								<td align="left">Division</td>
-								<td><bean:write name="LoginForm" property="crewdivision" /></td>
+								<td th:text="${loginForm.crewdivision}">
 							</tr>
 							<tr>
 								<td align="left">Zone</td>
-								<td><bean:write name="LoginForm" property="crewzone" /></td>
+								<td th:text="${loginForm.crewzone}">
 							</tr>
 							
 						</table>
@@ -759,7 +773,7 @@ function receiveOutput(){
 
 
 
-function ReturnToCMS(){
+function returnToCMS(){
 	
 	window.opener.postMessage({ message: "cancel", result: true }, "*");
 
@@ -788,7 +802,6 @@ function setblinkFont()
   document.getElementById("output").style.background="";  
   timer=setTimeout("blinkFont()",300)
 }
-
 
 
 function onLoad()
