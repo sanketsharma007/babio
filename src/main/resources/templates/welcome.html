@@ -82,13 +82,15 @@ div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
 </head>
 <body style="height: 100%; width:100%;" onload="onLoad()">
 
-<form action="welcome" style="height: 100%; width:100%;">
-<input type="hidden" name="crewid" />
-<input type="hidden" name="barepeat" />
-<input type="hidden" name="camstatus" />
-<input type="hidden" name="crewname" />
-<input type="hidden" name="crewdivision" />
-<input type="hidden" name="crewzone" />
+<form style="height: 100%; width:100%;">
+<input type="hidden" name="crewid" th:value="${loginForm.crewid}" />
+<input type="hidden" name="crewname" th:value="${loginForm.crewname}" />
+<input type="hidden" name="crewdivision" th:value="${loginForm.crewdivision}" />
+<input type="hidden" name="crewzone" th:value="${loginForm.crewzone}" />
+<input type="hidden" name="barepeat" th:value="${loginForm.barepeat}"/>
+<input type="hidden" name="camstatus" th:value="${loginForm.camstatus}"/>
+<input type="hidden" name="back" value=""/>
+<input type="hidden" name="method" value=""/>
 
 
 	
@@ -258,39 +260,26 @@ function startBreath()
 	//document.forms[0].method.style.background="grey";
 	//document.getElementById("output").style.color="red";
 	document.getElementById("output").innerHTML="Please Wait .... ";
-	document.getElementById("wait").innerHTML='<img src="images/ajax-loader.gif">';
+	document.getElementById("wait").innerHTML='<img src="/images/ajax-loader.gif">';
 	
 	blinkFont();
-	
-	var crewid=document.forms[0].crewid.value;
-	var crewname=encodeURIComponent(document.forms[0].crewname.value);
-	//alert("crewid: "+crewid);
-	//alert("crewname: "+crewname);
-	//var barepeat=encodeURIComponent(document.forms[0].barepeat.value;
 
-		var url="welcome.do?method=startBreath&barepeat="+ document.forms[0].barepeat.value ;
-		//alert("url: "+url);
-		//alert("url: " + url);
-		
-						if (window.XMLHttpRequest){ // Non-IE browsers
-							reqFeature = new XMLHttpRequest();
-						try{
-							reqFeature.open("GET", url, true);
-							}catch (e){
-							alert(e);
-							}
-							reqFeature.onreadystatechange = receiveOutput;
-							reqFeature.send(null);
-							}
-							else if (window.ActiveXObject){ // IE
-							reqFeature = new ActiveXObject("Microsoft.XMLHTTP");
-							if (reqFeature){
-							//alert('IE');
-							reqFeature.open("GET", url, true);
-							reqFeature.onreadystatechange = receiveOutput;
-							reqFeature.send(null);
-						}
-					}	
+	// Gather form data
+    const formData = new FormData(document.forms[0]);
+	alert(formData.get('crewid'));
+
+	fetch('/babio/startBreath', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => {
+        // Handle response (update UI as needed)
+        document.getElementById("output").innerHTML = data;
+    })
+    .catch(error => {
+        document.getElementById("output").innerHTML = "Error: " + error;
+    });
 	
 						
 	
