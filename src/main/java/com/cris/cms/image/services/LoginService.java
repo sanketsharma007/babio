@@ -22,13 +22,11 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.WebResource;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
 import com.cris.cms.image.model.LoginForm;
@@ -84,10 +82,10 @@ public class LoginService {
         return "welcome";
     }
 
-    public void startBreath(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
+    public ResponseEntity<String> startBreath(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  startBreath   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-        PrintWriter out = response.getWriter();
+        StringBuilder sb = new StringBuilder();
         String crewid = loginForm.getCrewid().trim();
         String crewstatus = loginForm.getCrewstatus();
         String signonid = loginForm.getSignonid();
@@ -142,8 +140,9 @@ public class LoginService {
             if (camstatus.equals("Y")) {
                 if (ba_device.equalsIgnoreCase("QTEL")) {
                     while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        out.println(line);
-                        out.flush();
+                        sb.append(line).append("\n");
+                        System.out.println("Line : " + line);
+
                         try {
                             if (!clicked && line.contains("Blowing")) {
                                 click(crewid);
@@ -155,15 +154,14 @@ public class LoginService {
                             }
                         } catch (NullPointerException e) {
                             System.out.println("CAMERA ERROR: " + e);
-                            out.println("CAMERA ERROR");
-                            out.flush();
+                            sb.append("CAMERA ERROR\n");
                             break;
                         }
                     }
                 } else {
                     while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        out.println(line);
-                        out.flush();
+                        sb.append(line).append("\n");
+
                         try {
                             if (!clicked && line.contains("Blowing")) {
                                 click(crewid);
@@ -175,8 +173,7 @@ public class LoginService {
                             }
                         } catch (NullPointerException e) {
                             System.out.println("CAMERA ERROR: " + e);
-                            out.println("CAMERA ERROR");
-                            out.flush();
+                            sb.append("CAMERA ERROR\n");
                             break;
                         }
                     }
@@ -184,23 +181,23 @@ public class LoginService {
             } else {
                 if (ba_device.equalsIgnoreCase("KY8000_CMS")) {
                     while (!(line.contains("calon")) && (line = r.readLine()) != null) {
-                        out.println(line);
-                        out.flush();
+                        sb.append(line).append("\n");
+
                     }
                 } else if (ba_device.equalsIgnoreCase("QTEL")) {
                     while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        out.println(line);
-                        out.flush();
+                        sb.append(line).append("\n");
+
                     }
                 } else {
                     while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        out.println(line);
-                        out.flush();
+                        sb.append(line).append("\n");
+
                     }
                 }
             }
 
-            out.println(" image64:");
+            sb.append(line).append("\n");
             if (camstatus.equals("Y")) {
                 try {
                     compress(crewid);
@@ -211,7 +208,7 @@ public class LoginService {
                         byte[] imageData = new byte[(int) file.length()];
                         imageInFile.read(imageData);
                         String imageDataString = Base64.encodeBase64URLSafeString(imageData);
-                        out.println(imageDataString);
+                        sb.append(imageDataString).append("\n");
                         imageInFile.close();
                     }
                     System.out.println("Image Successfully Manipulated!");
@@ -221,13 +218,13 @@ public class LoginService {
                     System.out.println("Exception while reading the Image " + ioe);
                 }
             }
-            out.println(":image64ends:");
-            out.flush();
+            sb.append(":image64ends:").append("\n");
+
             r.close();
-            out.close();
         } catch (Exception e) {
             System.out.println("Ex : " + e);
         }
+        return ResponseEntity.ok(sb.toString());
     }
 
     private void click(String crewid) {
@@ -327,7 +324,7 @@ public class LoginService {
         System.out.println("Reregistration : " + loginForm.getReregistration());
 
         ResultSet rs = null;
-        String viewName = "biover"; // default view
+        String viewName = "bioVer"; // default view
 
         try {
             rs = db.executeQuery("SELECT * FROM FP_Data WHERE crewid_v='" + crewid + "'");
@@ -347,11 +344,11 @@ public class LoginService {
                     System.out.println("Second Finger : " + finger);
                     loginForm.setSecond_finger(finger);
 
-                    viewName = "biover";
+                    viewName = "bioReg";
                 } else { // DATA IS INCONSISTENT - DELETE EXISTING DATA AND GO FOR FRESH REGISTRATION
                     db.executeUpdate("DELETE FROM FP_Data WHERE crewid_v='" + crewid + "'");
                     System.out.println("Registration 1");
-                    viewName = "bioreg";
+                    viewName = "bioReg";
                 }
             } else if (!"true".equals(loginForm.getReregistration())) { // IF FP DOESN'T EXIST IN LOCAL DB, CHECK IN
                                                                         // CENTRAL DB
@@ -361,25 +358,25 @@ public class LoginService {
                         String output = getFPData(rsPeers.getString("peer_ip_v"), crewid);
                         if ("[null]".equals(output)) { // IF FP NOT FOUND ON CENTRAL SERVER
                             System.out.println("WS returned null");
-                            viewName = "bioreg";
+                            viewName = "bioReg";
                         } else { // IF FP FOUND ON CENTRAL SERVER
                             // parseJSONOutput(output, crewid);
                             // loginForm.setFirst_finger(finger_no[0]);
                             // loginForm.setSecond_finger(finger_no[1]);
-                            viewName = "biover";
+                            viewName = "bioVer";
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                         System.out.println("could not connect to remote");
-                        viewName = "bioreg";
+                        viewName = "bioReg";
                     }
                 } else { // IF CENTRAL SERVER IP IS NOT CONFIGURED
                     System.out.println("Central Server not configured");
-                    viewName = "bioreg";
+                    viewName = "bioReg";
                 }
             } else { // IF IT IS A CASE OF RE-REGISTRATION
                 System.out.println("Re - Registration ");
-                viewName = "bioreg";
+                viewName = "bioReg";
             }
         } catch (Exception e) {
             System.out.println("Error : " + e);
@@ -390,6 +387,7 @@ public class LoginService {
                 db.closeCon();
             } catch (Exception ex) {
                 // ignore
+                ex.printStackTrace();
             }
         }
 
@@ -399,7 +397,7 @@ public class LoginService {
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  initiateBio   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("\n\n\n\n\n");
 
-        return viewName; // returns "bioreg" or "biover"
+        return viewName; // returns "bioReg" or "bioVer"
     }
 
     public String getFPData(String webserviceIp, String crewid) {
@@ -427,7 +425,7 @@ public class LoginService {
         return output;
     }
 
-    public void bioVer(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
+    public ResponseEntity<String> bioVer(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  BioVer   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
         ResultSet rs = null;
@@ -441,7 +439,7 @@ public class LoginService {
         String second_finger = loginForm.getSecond_finger().trim();
         System.out.println("Second Finger : " + second_finger);
 
-        PrintWriter out = response.getWriter();
+        StringBuilder sb = new StringBuilder();
 
         try {
             rs = db.executeQuery("SELECT * FROM Devices_Enable WHERE Device_Type_v='BIO'");
@@ -468,8 +466,7 @@ public class LoginService {
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
             while ((line = r.readLine()) != null) {
-                out.println(line);
-                out.flush();
+                sb.append(line).append("\n");
 
                 if (line.contains("<<NO MATCH>>")) { // IF VERIFICATION FAILS, DOWNLOAD THE LATEST FINGER PRINTS
                     rs = db.executeQuery("SELECT peer_ip_v FROM peers");
@@ -494,12 +491,99 @@ public class LoginService {
 
         } catch (Exception e) {
             System.out.println("Ex : " + e);
-        } finally {
-            out.close();
         }
 
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  BioVer   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("\n\n\n\n\n");
+        return ResponseEntity.ok(sb.toString());
     }
+
+    public ResponseEntity<String> bioReg(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  BioReg   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+        StringBuilder sb = new StringBuilder();
+        DBConnection db = new DBConnection();
+
+        String crewid = loginForm.getCrewid().trim();
+        System.out.println("Crew ID : " + crewid);
+        String finger = loginForm.getFinger().trim();
+        System.out.println("Finger : " + finger);
+        String reregistration = loginForm.getReregistration();
+        System.out.println("reregistration : " + reregistration);
+
+        try {
+            ResultSet rs = db.executeQuery("SELECT * FROM Devices_Enable WHERE Device_Type_v='BIO'");
+            if (rs.next())
+                loginForm.setTimeout(rs.getString("Timeout_value_v").trim() + "000");
+            else
+                loginForm.setTimeout("10000"); // DEFAULT TIMEOUT 10 SEC
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Timeout Exception " + e);
+        } finally {
+            db.closeCon();
+        }
+
+        try {
+            killProcess("bio");
+            String dummy_value = "N"; // USED FOR DIFFERENCIATING THE RE-REGISTRATION CASE
+
+            if ("true".equals(reregistration)) {
+                dummy_value = "R"; // SPECIFIES THE RE-REGISTRATION CASE
+            }
+
+            ProcessBuilder pb = new ProcessBuilder("./bio", "R", crewid, finger, dummy_value, loginForm.getTimeout());
+            pb.directory(new File("/usr/local"));
+
+            Process p = pb.start();
+
+            String line;
+            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+            while ((line = r.readLine()) != null) {
+                sb.append(line).append("\n");
+                System.out.println("Line : " + line);
+            }
+
+            r.close();
+
+        } catch (Exception e) {
+            System.out.println("Ex : " + e);
+            sb.append("ERROR: ").append(e.getMessage());
+        }
+
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  BioReg   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println("\n\n\n\n\n");
+
+        return ResponseEntity.ok(sb.toString());
+    }
+
+   public ResponseEntity<String> deleteFPData(@ModelAttribute LoginForm loginForm) {
+    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteFPData   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+    DBConnection db = new DBConnection();
+    String crewid = loginForm.getCrewid().trim();
+    loginForm.setReregistration("true");
+
+    System.out.println("Crew ID : " + crewid);
+
+    int rowcount = 0;
+    String result = "fail";
+
+    try {
+        rowcount = db.executeUpdate("DELETE FROM FP_Data WHERE crewid_v='" + crewid + "'");
+        if (rowcount > 0)
+            result = "success";
+    } catch (Exception e) {
+        System.out.println("Error : " + e);
+    } finally {
+        db.closeCon();
+    }
+
+    System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  deleteFPData   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+    System.out.println("\n\n\n\n\n");
+
+    return ResponseEntity.ok(result);
+}
 
 }

@@ -223,32 +223,50 @@
         }
 
         function BioReg() {
-            document.forms[0].method.disabled = "true";
+             // Prepare form data
+    var formData = new FormData(document.forms[0]);
 
-            if (document.forms[0].method.value == "Return") {
-                document.forms[0].action = "/welcome?method=initiateBio";
-                document.forms[0].submit();
-            } else {
-                var url = "/welcome?method=BioReg&finger=" + document.forms[0].finger.value + "&reregistration=" + document.forms[0].reregistration.value;
-                if (window.XMLHttpRequest) { // Non-IE browsers
-                    reqFeature = new XMLHttpRequest();
-                    try {
-                        reqFeature.open("GET", url, true);
-                    } catch (e) {
-                        alert(e);
-                    }
-                    reqFeature.onreadystatechange = receiveOutput;
-                    reqFeature.send(null);
-                } else if (window.ActiveXObject) { // IE
-                    reqFeature = new ActiveXObject("Microsoft.XMLHTTP");
-                    if (reqFeature) {
-                        reqFeature.open("GET", url, true);
-                        reqFeature.onreadystatechange = receiveOutput;
-                        reqFeature.send(null);
-                    }
+    fetch('/babio/bioReg', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(xmlhtp => {
+        document.getElementById("output").innerHTML = xmlhtp;
+        document.getElementById("output").scrollTop = document.getElementById("output").scrollHeight;
+
+        if (xmlhtp.indexOf("ERROR") > -1) {
+            res = "Device Error. Registration Failed";
+            window.opener.postMessage({ message: res, result: true }, "*");
+        } else if (xmlhtp.indexOf("TIMEOUT") > -1) {
+            if (no_of_fingers > 0) {
+                deleteFPData();
+            }
+            res = "Operation Timed Out. Please Try again.";
+            window.opener.postMessage({ message: res, result: true }, "*");
+        } else if (xmlhtp.indexOf("Registration Complete") > -1) {
+            no_of_fingers = no_of_fingers + 1;
+
+            if (no_of_fingers == 1) {
+                alert("Your First finger has been registered successfully. Click ok to register Second Finger");
+                document.getElementById("output").innerHTML = "Select a second finger to register and click on register";
+                firstfinger = document.forms[0].finger.value;
+                if (document.forms[0].finger.value == "L5") {
+                    selectFinger("R5");
+                } else {
+                    selectFinger("L5");
                 }
+            } else if (no_of_fingers == 2) {
+                alert("Your both the fingers have been registered successfully");
+                document.forms[0].action = "/babio/initiateBio";
+                document.forms[0].submit();
             }
         }
+    })
+    .catch(e => {
+        document.getElementById("output").innerHTML = "ERROR: " + e;
+    });
+}
 
         function receiveOutput() {
             var status;
@@ -284,7 +302,7 @@
                                 }
                             } else if (no_of_fingers == 2) {
                                 alert("Your both the fingers have been registered successfully");
-                                document.forms[0].action = "/welcome?method=initiateBio";
+                                document.forms[0].action = "/babio/initiateBio";
                                 document.forms[0].submit();
                             }
                         }
@@ -296,27 +314,29 @@
         }
 
         function deleteFPData() {
-            if (no_of_fingers > 0) {
-                var url = "/welcome?method=deleteFPData";
-                if (window.XMLHttpRequest) { // Non-IE browsers
-                    reqFeature = new XMLHttpRequest();
-                    try {
-                        reqFeature.open("GET", url, true);
-                    } catch (e) {
-                        alert(e);
-                    }
-                    reqFeature.onreadystatechange = receivedeleteFPDataOutput;
-                    reqFeature.send(null);
-                } else if (window.ActiveXObject) { // IE
-                    reqFeature = new ActiveXObject("Microsoft.XMLHTTP");
-                    if (reqFeature) {
-                        reqFeature.open("GET", url, true);
-                        reqFeature.onreadystatechange = receivedeleteFPDataOutput;
-                        reqFeature.send(null);
-                    }
-                }
+    if (no_of_fingers > 0) {
+        var formData = new FormData();
+        formData.append("crewid", document.forms[0].crewid.value);
+
+        fetch('/babio/deleteFPData', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(xmlhtp => {
+            document.getElementById("output").innerHTML = xmlhtp;
+            document.getElementById("output").scrollTop = document.getElementById("output").scrollHeight;
+            if (xmlhtp.indexOf("success") > -1) {
+                alert("Registration Process terminated");
+            } else {
+                alert("Registration Process did not complete successfully. Please contact supervisor");
             }
-        }
+        })
+        .catch(e => {
+            document.getElementById("output").innerHTML = "ERROR: " + e;
+        });
+    }
+}
 
         function receivedeleteFPDataOutput() {
             var status;

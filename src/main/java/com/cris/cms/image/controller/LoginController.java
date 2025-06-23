@@ -2,6 +2,8 @@ package com.cris.cms.image.controller;
 
 import com.cris.cms.image.model.LoginForm;
 import com.cris.cms.image.services.LoginService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +19,7 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @GetMapping
+    @GetMapping("/")
     public String showCrewDetails(Model model) {
         return loginService.showCrewDetails(model);
     }
@@ -33,18 +35,33 @@ public class LoginController {
     }
 
     @PostMapping("/startBreath")
-    public void startBreath(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
-        loginService.startBreath(loginForm, response);
+    @ResponseBody
+    public String startBreath(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
+        return loginService.startBreath(loginForm, model).getBody();
     }
 
-    @PostMapping("initiateBio")
+    @PostMapping("/initiateBio")
     public String initiateBio(@ModelAttribute LoginForm loginForm, Model model) {
         return loginService.initiateBio(loginForm, model);
     }
 
     @PostMapping("/bioVer")
-    public void bioVer(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
-        loginService.bioVer(loginForm, response);
+    @ResponseBody
+    public String bioVer(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
+        return loginService.bioVer(loginForm, model).getBody();
+
+    }
+
+    @PostMapping("/bioReg")
+    @ResponseBody
+    public String bioReg(
+            @ModelAttribute LoginForm loginForm, Model model) throws Exception {
+        return loginService.bioReg(loginForm, model).getBody();
+    }
+
+    @PostMapping("/deleteFPData")
+    public ResponseEntity<String> deleteFPData(@ModelAttribute LoginForm loginForm) {
+        return loginService.deleteFPData(loginForm);
     }
 
 }

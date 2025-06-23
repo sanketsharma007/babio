@@ -82,7 +82,7 @@ div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
 </head>
 <body style="height: 100%; width:100%;" onload="onLoad()">
 
-<form style="height: 100%; width:100%;">
+<form th:action="@{/welcome}" method="post" th:object="${loginForm}" style="height: 100%; width:100%;">
 <input type="hidden" name="crewid" th:value="${loginForm.crewid}" />
 <input type="hidden" name="crewname" th:value="${loginForm.crewname}" />
 <input type="hidden" name="crewdivision" th:value="${loginForm.crewdivision}" />

@@ -120,6 +120,7 @@
   </head>
   <body style="height: 100%; width: 100%" onload="onLoad()">
     <form
+      th:action="@{/bioVer}"
       th:object="${loginForm}"
       method="post"
       style="height: 100%; width: 100%"
@@ -149,25 +150,22 @@
                 <td style="height: 10%; width: 20%" align="center">
                   <div id="blink1"><h1>Verification</h1></div>
                 </td>
-                <td style="height: 10%; width: 60%" align="center"></td>
+                <td style="height: 10%; width: 60%" text-align="center"></td>
               </tr>
             </table>
           </td>
         </tr>
         <tr>
-          <td style="height: 10%; width: 100%" align="left">
-            <textarea
-              id="output"
-              cols="100"
-              rows="1"
-              style="border: 1; text-align: left"
-            >
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Please place your finger on the sensor</textarea
-            >
+          <td style="height: 10%; width: 100%; text-align: center;">
+           <div
+  id="output"
+  style="width: 800px; margin-left: 0; display: block; text-align: left; padding: 8px; min-height: 24px; font-family: inherit; font-size: 2em; font-weight: bold;">
+  Please place your finger on the sensor
+</div>
           </td>
         </tr>
         <tr style="height: 60%; width: 100%">
-          <td align="center" valign="middle">
+          <td text-align="center" valign="middle">
             <div
               id="L1"
               class="circleBase type1"
@@ -218,7 +216,7 @@
               class="circleBase type10"
               onclick="selectFinger('R1')"
             ></div>
-            <img align="middle" class="imgclass" src="/images/hands.png" />
+            <img text-align="middle" class="imgclass" src="/images/hands.png" />
           </td>
         </tr>
       </table>
@@ -258,8 +256,12 @@
 
       function BioVer() {
         var form = document.forms[0];
+        if (!form.crewid.value || !form.first_finger.value || !form.second_finger.value) {
+        alert("Missing required biometric data.");
+        return;
+        }
         var formData = new FormData(form);
-        alert(formData);
+       // alert("firstFinger: "+formData.get("first_finger"));
 
         fetch("/babio/bioVer", {
           method: "POST",
