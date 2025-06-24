@@ -1,828 +1,574 @@
 <!DOCTYPE html>
 <html style="height: 100%; width:100%;">
+
 <head>
 	<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<title>CMS</title>
-<style>/* Stylesheet 1: */
+	<title>CMS</title>
+	<style>
+		/* Stylesheet 1: */
 
-#group2 {
-     visibility: hidden;
-     position: absolute;
-     left: 0px;
-     top: 0px;
-     width:100%;
-     height:100%;
-     text-align:center;
-     z-index: 1000;
-     
-}
+		#group2 {
+			visibility: hidden;
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width: 100%;
+			height: 100%;
+			text-align: center;
+			z-index: 1000;
 
-
-
-textarea {
- 
-color: black;
-font-size: 12px;
-align: center;
-border: none;
-}
-
-
-
-.button {
-   border-top: 1px solid #96d1f8;
-   background: #81c1eb;
-   background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#81c1eb));
-   background: -webkit-linear-gradient(top, #3e779d, #81c1eb);
-   background: -moz-linear-gradient(top, #3e779d, #81c1eb);
-   background: -ms-linear-gradient(top, #3e779d, #81c1eb);
-   background: -o-linear-gradient(top, #3e779d, #81c1eb);
-
-   -webkit-border-radius: 29px;
-   -moz-border-radius: 29px;
-   border-radius: 29px;
-   -webkit-box-shadow: rgba(0,0,0,1) 0 1px 0;
-   -moz-box-shadow: rgba(0,0,0,1) 0 1px 0;
-   box-shadow: rgba(0,0,0,1) 0 1px 0;
-   text-shadow: rgba(0,0,0,.4) 0 1px 0;
-   color: white;
-   font-size: 20px;
-   font-family: Georgia, Serif;
-   text-decoration: none;
-   vertical-align: middle;
-   width: 300px;
-   height: 100px;
-   }
-.button:hover {
-   border-top-color: #28597a;
-   background: #28597a;
-   color: #ccc;
-   }
-.button:active {
-   border-top-color: #2a4c63;
-   background: #2a4c63;
-   }
-   
-
-body {
-    font: 100% Lucida Sans;   
-    height: 100%;
-}
-
-table.stat th, table.stat td {
-  font-size : 65%;
-  font-family : "Myriad Web",Verdana,Helvetica,Arial,sans-serif;
-  background : #efe none; color : #630; }
-
-
-
-div.int-box { display: table-cell; vertical-align: middle; font-size : 100%;}
-
-</style>
-</head>
-<body style="height: 100%; width:100%;" onload="onLoad()">
-
-<form th:action="@{/welcome}" method="post" th:object="${loginForm}" style="height: 100%; width:100%;">
-<input type="hidden" name="crewid" th:value="${loginForm.crewid}" />
-<input type="hidden" name="crewname" th:value="${loginForm.crewname}" />
-<input type="hidden" name="crewdivision" th:value="${loginForm.crewdivision}" />
-<input type="hidden" name="crewzone" th:value="${loginForm.crewzone}" />
-<input type="hidden" name="barepeat" th:value="${loginForm.barepeat}"/>
-<input type="hidden" name="camstatus" th:value="${loginForm.camstatus}"/>
-<input type="hidden" name="back" value=""/>
-<input type="hidden" name="method" value=""/>
-
-
-	
-	
-  
-
-<div id="group1">
-<table   style="height:100%; width:100%; " border="0" align="center" cellpadding="1">
-	<tr style="background-color: #84c754;" >					
-		<td style="height:10%; width:100%;" align="center" colspan="2">
-		
-			<table   style="height:100%; width:100%; ">
-				<tr style="background-color: #84c754;">					
-					<td style="height:10%; width:30%;"align="center" >
-						<table id="stat">
-							<tr>
-								<td th:text="${loginForm.crewid}"></td>
-							</tr>
-							<tr>
-								<td th:text="${loginForm.crewname}"></td>
-							</tr>
-							
-						</table>
-								 	
-					</td>	
-					<td style="height:10%; width:40%;"align="center" >
-								<h2>Breath Analyzer Test</h2> 			
-					</td>
-					<td style="height:10%; width:30%;"align="center" >
-						<table id="stat">
-							<tr>
-								<td align="left">Division</td>
-								<td th:text="${loginForm.crewdivision}">
-							</tr>
-							<tr>
-								<td align="left">Zone</td>
-								<td th:text="${loginForm.crewzone}">
-							</tr>
-							
-						</table>
-					</td>		
-				</tr>	
-			</table>
-					
-		</td>					
-	</tr>	
-	
- 	
- 	
-	<tr>
-		<td style="height:250px; width:100%;" valign="middle" align="center" colspan="2">
-			<div id="output" class="int-box">Click on the button to start the breath test</div>		
-		</td>
-	</tr>
-	
-	<tr> 
-		<td style="height:30%; width:100%;" valign="top" align="center" colspan="2">
-			<div  id="wait"  ></div>			
-		</td>
-	</tr>
-	
-		
-	<tr>
-		 <td valign="middle" align="center">
-                                <button type="button" class="button" onclick="startBreath()">Start Breath</button>
-                            </td>
-                            <td valign="middle" align="center">
-                                <button type="button" class="button" onclick="returnToCMS()">Back</button>
-                            </td>
-		
-	</tr>
-	
-</table>
-</div>
-
-
-
-
-
-
-<div id="group2">
-<table   style="height:100%; width:100%; " border="0" align="center" cellpadding="1">
-	<tr style="background-color: #84c754;" >					
-		<td style="height:10%; width:100%;" align="center" colspan="2">
-		
-			<table   style="height:100%; width:100%; ">
-				<tr style="background-color: #84c754;">					
-					<td style="height:10%; width:30%;"align="center" >
-						<table id="stat">
-							<tr>
-								<td th:text="${loginForm.crewid}"></td>
-							</tr>
-							<tr>
-								<td th:text="${loginForm.crewname}"></td>>
-							</tr>
-							
-						</table>
-								 	
-					</td>	
-					<td style="height:10%; width:40%;"align="center" >
-								<h2>Breath Analyzer Test</h2> 			
-					</td>
-					<td style="height:10%; width:30%;"align="center" >
-						<table id="stat">
-							<tr>
-								<td align="left">Division</td>
-								<td th:text="${loginForm.crewdivision}">
-							</tr>
-							<tr>
-								<td align="left">Zone</td>
-								<td th:text="${loginForm.crewzone}">
-							</tr>
-							
-						</table>
-					</td>		
-				</tr>	
-			</table>					
-		</td>					
-	</tr>	
-	
- 	
- 	
-	<tr>
-		
-		<td style="height:100%; width:100%;" valign="middle" align="center" colspan="2">
-			<div id="result" ></div>		
-		</td>
-	
-	</tr>
-	
-		
-	<tr>
-		<td style="height:30%; width:50%;" align="center" valign="top" colspan="2" >
-		<div id="resultContainer" style="display: none;">	
-		<div id="okButtonContainer">
-			<html:button property="ok" value="OK" styleClass="button" onclick="okreturn()"/>
-			</div>	    	
-			</div>		
-		</td>		
-	</tr>
-	
-</table>
-</div>
-
-
-
-<script>
-
-
-var reqFeature;
-var xmlhtp ;
-var res;
-var resfordisplay;
-var size=0;
-var barepeat = "false";
-
-
-
-
-
-function startBreath()
-{
-	
-	
-	document.forms[0].method.disabled="true";
-	document.forms[0].back.disabled="true";
-	//document.forms[0].method.style.background="grey";
-	//document.getElementById("output").style.color="red";
-	document.getElementById("output").innerHTML="Please Wait .... ";
-	document.getElementById("wait").innerHTML='<img src="/images/ajax-loader.gif">';
-	
-	blinkFont();
-
-	// Gather form data
-    const formData = new FormData(document.forms[0]);
-	alert(formData.get('crewid'));
-
-	fetch('/babio/startBreath', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(data => {
-        // Handle response (update UI as needed)
-        document.getElementById("output").innerHTML = data;
-    })
-    .catch(error => {
-        document.getElementById("output").innerHTML = "Error: " + error;
-    });
-	
-						
-	
-	
-}
-
-
-function receiveOutput(){
-
-			var status;
-			var camstatus = document.forms[0].camstatus.value;
-			var crewid = document.forms[0].crewid.value;
-			//var sanitizedCrewid=sanitizeCrewid(crewid);			
-			var picurl;
-			
-			
-				picurl="http://localhost/" + crewid + ".jpeg";	
-			
-			
-			
-			try{
-				status=reqFeature.status;
-				//alert("reqFeature.readyState: "+reqFeature.readyState);
-				if (reqFeature.readyState <= 4){ // Complete	
-						if (reqFeature.status == 200)
-						{ // OK response
-							
-							document.getElementById("wait").innerHTML='';
-							//document.getElementById("output").style.color="green";
-							xmlhtp = reqFeature.responseText;	
-							
-							if(xmlhtp.indexOf("mg/100ml") > -1 || xmlhtp.indexOf("mg/100mL") > -1)
-							{
-								
-
-								if((xmlhtp.indexOf("KATS") > -1) || (xmlhtp.indexOf("ALPHA") > -1))
-								{
-									
-									
-									res=xmlhtp.substring(xmlhtp.indexOf("TAYAL"));
-									var today = new Date();
-									
-									// TWO DIGIT DAY
-									var day = today.getDate();
-									var twodigitday = day < 10 ? '0' + day : '' + day;   // BECAUSE ONE DIGIT DAY CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									// TWO DIGIT MONTH
-									var month = today.getMonth() + 1;
-									var twodigitmonth = month < 10 ? '0' + month : '' + month;
-									
-									// DATE									
-									var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-									
-									
-									
-									// TWO DIGIT HRS
-									var hrs = today.getHours();
-									var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;   // BECAUSE ONE DIGIT HRS CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									// TWO DIGIT MIN
-									var min = today.getMinutes();
-									var twodigitmin = min < 10 ? '0' + min : '' + min;   // BECAUSE ONE DIGIT MIN CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									var time = twodigithrs + ":" + twodigitmin ;
-									
-									
-									
-									
-									var newdatetime = "Date          : " + date + "\nTime          : " + time +"\n";
-									
-									var strtobereplaced = res.substring(res.indexOf("Date"),res.indexOf("Result"));
-									
-									res = res.replace(strtobereplaced,newdatetime);
-									
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("TAYAL"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-									var resfordisplaytemp;//xmlhtp.substring(xmlhtp.indexOf("TAYAL")).replace(/^\s*[\r\n]/gm, "");
-									if(xmlhtp.indexOf("image64:")>-1){
-										var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("TAYAL"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-										}
-										else{
-										resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("TAYAL")).replace(/^\s*[\r\n]/gm, "");
-										}
-									resfordisplay=resfordisplaytemp.replace(strtobereplaced,newdatetime);                                        
-
-								}else if(xmlhtp.indexOf("TAYALTECH") > -1)
-								{
-									
-									res=xmlhtp.substring(xmlhtp.indexOf("TAYAL"));
-									var today = new Date();
-									
-									
-									
-									var day = today.getDate();
-									var twodigitday = day < 10 ? '0' + day : '' + day;   // BECAUSE ONE DIGIT DAY CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									// TWO DIGIT MONTH
-									var month = today.getMonth() + 1;
-									var twodigitmonth = month < 10 ? '0' + month : '' + month;
-									
-									// DATE									
-									var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-									
-									
-									
-									// TWO DIGIT HRS
-									var hrs = today.getHours();
-									var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;   // BECAUSE ONE DIGIT HRS CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									// TWO DIGIT MIN
-									var min = today.getMinutes();
-									var twodigitmin = min < 10 ? '0' + min : '' + min;   // BECAUSE ONE DIGIT MIN CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									var time = twodigithrs + ":" + twodigitmin ;
-									
-									
-									
-									
-									var newdatetime = "Date        : " + date + "\nTime        : " + time +"\n";
-									
-									var strtobereplaced = res.substring(res.indexOf("Date"),res.indexOf("Exhale vol"));
-									
-									res = res.replace(strtobereplaced,newdatetime);
-									var resfordisplaytemp;
-									if(xmlhtp.indexOf("image64:")>-1){
-									var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("TAYAL"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-									}
-									else{
-									resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("TAYAL")).replace(/^\s*[\r\n]/gm, "");
-									}
-									resfordisplay=resfordisplaytemp.replace(strtobereplaced,newdatetime);   
-									
-									
-
-								}else if(xmlhtp.indexOf("PREKSHA") > -1)
-								{
-									
-									res=xmlhtp.substring(xmlhtp.indexOf("PREKSHA"));
-									var today = new Date();
-									
-									
-									
-									var day = today.getDate();
-									var twodigitday = day < 10 ? '0' + day : '' + day;   // BECAUSE ONE DIGIT DAY CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									// TWO DIGIT MONTH
-									var month = today.getMonth() + 1;
-									var twodigitmonth = month < 10 ? '0' + month : '' + month;
-									
-									// DATE									
-									var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-									
-									
-									
-									// TWO DIGIT HRS
-									var hrs = today.getHours();
-									var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;   // BECAUSE ONE DIGIT HRS CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									// TWO DIGIT MIN
-									var min = today.getMinutes();
-									var twodigitmin = min < 10 ? '0' + min : '' + min;   // BECAUSE ONE DIGIT MIN CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									var time = twodigithrs + ":" + twodigitmin ;
-									
-									
-									
-									
-									var newdatetime = "Date        : " + date + "\nTime        : " + time +"\n";
-									
-									var strtobereplaced = res.substring(res.indexOf("Date"),res.indexOf("Exhale vol"));
-									
-									res = res.replace(strtobereplaced,newdatetime);
-									
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA")).replace(/^\s*[\r\n]/gm, "");
-									if(xmlhtp.indexOf("image64:")>-1){
-										var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-										}
-										else{
-										resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA")).replace(/^\s*[\r\n]/gm, "");
-										}
-									resfordisplay=resfordisplaytemp.replace(strtobereplaced,newdatetime);   
-									
-									
-
-								}
-								else if(xmlhtp.indexOf("ADDSOFT") > -1)
-								{
-									
-									res=xmlhtp.substring(xmlhtp.indexOf("ADDSOFT"));
-									var today = new Date();
-									
-									
-									
-									var day = today.getDate();
-									var twodigitday = day < 10 ? '0' + day : '' + day;   // BECAUSE ONE DIGIT DAY CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									// TWO DIGIT MONTH
-									var month = today.getMonth() + 1;
-									var twodigitmonth = month < 10 ? '0' + month : '' + month;
-									
-									// DATE									
-									var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-									
-									
-									
-									// TWO DIGIT HRS
-									var hrs = today.getHours();
-									var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;   // BECAUSE ONE DIGIT HRS CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									// TWO DIGIT MIN
-									var min = today.getMinutes();
-									var twodigitmin = min < 10 ? '0' + min : '' + min;   // BECAUSE ONE DIGIT MIN CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									var time = twodigithrs + ":" + twodigitmin ;
-									
-									
-									
-									
-									var newdatetime = "Date        : " + date + "\nTime        : " + time +"\n";
-									
-									var strtobereplaced = res.substring(res.indexOf("Date"),res.indexOf("Exhale vol"));
-									
-									res = res.replace(strtobereplaced,newdatetime);
-									
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA")).replace(/^\s*[\r\n]/gm, "");
-									if(xmlhtp.indexOf("image64:")>-1){
-										var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("ADDSOFT"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-										}
-										else{
-										resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("ADDSOFT")).replace(/^\s*[\r\n]/gm, "");
-										}
-									resfordisplay=resfordisplaytemp.replace(strtobereplaced,newdatetime);   
-									
-									
-
-								}
-								else if(xmlhtp.indexOf("NIGS") > -1)
-								{
-									
-									res=xmlhtp.substring(xmlhtp.indexOf("NIGS"));
-									var today = new Date();
-									
-									
-									
-									var day = today.getDate();
-									var twodigitday = day < 10 ? '0' + day : '' + day;   // BECAUSE ONE DIGIT DAY CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									// TWO DIGIT MONTH
-									var month = today.getMonth() + 1;
-									var twodigitmonth = month < 10 ? '0' + month : '' + month;
-									
-									// DATE									
-									var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-									
-									
-									
-									// TWO DIGIT HRS
-									var hrs = today.getHours();
-									var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;   // BECAUSE ONE DIGIT HRS CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									// TWO DIGIT MIN
-									var min = today.getMinutes();
-									var twodigitmin = min < 10 ? '0' + min : '' + min;   // BECAUSE ONE DIGIT MIN CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									var time = twodigithrs + ":" + twodigitmin ;
-									
-									
-									
-									
-									var newdatetime = "Date        : " + date + "\nTime        : " + time +"\n";
-									
-									var strtobereplaced = res.substring(res.indexOf("Date"),res.indexOf("Exhale vol"));
-									
-									res = res.replace(strtobereplaced,newdatetime);
-									
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA")).replace(/^\s*[\r\n]/gm, "");
-									if(xmlhtp.indexOf("image64:")>-1){
-										var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("NIGS"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-										}
-										else{
-										resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("NIGS")).replace(/^\s*[\r\n]/gm, "");
-										}
-									resfordisplay=resfordisplaytemp.replace(strtobereplaced,newdatetime);   
-									
-									
-
-								}
-								else if(xmlhtp.indexOf("SANCHAR") > -1)
-								{
-									
-									res=xmlhtp.substring(xmlhtp.indexOf("SANCHAR"));
-									var today = new Date();
-									
-									
-									
-									var day = today.getDate();
-									var twodigitday = day < 10 ? '0' + day : '' + day;   // BECAUSE ONE DIGIT DAY CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									// TWO DIGIT MONTH
-									var month = today.getMonth() + 1;
-									var twodigitmonth = month < 10 ? '0' + month : '' + month;
-									
-									// DATE									
-									var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-									
-									
-									
-									// TWO DIGIT HRS
-									var hrs = today.getHours();
-									var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;   // BECAUSE ONE DIGIT HRS CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									// TWO DIGIT MIN
-									var min = today.getMinutes();
-									var twodigitmin = min < 10 ? '0' + min : '' + min;   // BECAUSE ONE DIGIT MIN CREATES STRING REPRESENTATION PROBLEM IN DB2 QUERY
-									
-									
-									var time = twodigithrs + ":" + twodigitmin ;
-									
-									
-									
-									
-									var newdatetime = "Date        : " + date + "\nTime        : " + time +"\n";
-									
-									var strtobereplaced = res.substring(res.indexOf("Date"),res.indexOf("Exhale vol"));
-									
-									res = res.replace(strtobereplaced,newdatetime);
-									
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-									//var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("PREKSHA")).replace(/^\s*[\r\n]/gm, "");
-									if(xmlhtp.indexOf("image64:")>-1){
-										var resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("SANCHAR"),xmlhtp.indexOf("image64:")).replace(/^\s*[\r\n]/gm, "");
-										}
-										else{
-										resfordisplaytemp=xmlhtp.substring(xmlhtp.indexOf("SANCHAR")).replace(/^\s*[\r\n]/gm, "");
-										}
-									resfordisplay=resfordisplaytemp.replace(strtobereplaced,newdatetime);   
-									
-									
-
-								}
-								
-								
-								else if(xmlhtp.indexOf("QTEL") > -1)
-								{
-									res=xmlhtp.substring(xmlhtp.indexOf("QTEL"));
-									resfordisplay=xmlhtp.substring(xmlhtp.indexOf("QTEL"),xmlhtp.indexOf("&@")-1).replace(/^\s*[\r\n]/gm, "");                                             
-
-								}
-								else
-								{
-									
-									res=xmlhtp;
-									resfordisplay=xmlhtp.substring(xmlhtp.indexOf("Sr. no"),xmlhtp.indexOf("image64:"));
-									//alert("inside else Block")
-									//alert(res);
-								}
-									
-								var res1 = res;
-								res1 = res1.toLowerCase();
-								
-								if(res1.indexOf("#0$0") > -1)
-								{
-									 res1 = parseFloat(res1.substring(res1.indexOf("result")+7,res1.indexOf("mg/100ml")));
-									 //alert("Inside first block "+res1);
-								}else if(res1.indexOf("bac:") > -1)
-								{
-									 res1 = parseFloat(res1.substring(res1.indexOf("bac:")+4,res1.indexOf("mg/100ml")));
-									 //alert(res1);
-								}
-								else
-								{     
-									 if(res1.indexOf("result")>-1){
-									 res1 = parseFloat(res1.substring(res1.indexOf("result")+13,res1.indexOf("mg/100ml")));
-									 }
-									 
-									 //alert(res1);
-									 
-									 //alert("inside second block "+res1);
-								}
-								
-
-
-								
-
-								
-								if(res1 > 0.0)
-								{
-								
-									document.getElementById("group1").style.visibility="hidden";
-									document.getElementById("group2").style.visibility="visible";
-									document.getElementById("result").innerHTML="<table bgcolor='red'><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea rows='11' cols='30' style='background-color: red'>" + resfordisplay + " </textarea></td></tr></table>";
-									
-									document.forms[0].barepeat.value="false";
-								
-								}
-								else
-								{  
-									document.getElementById("group1").style.visibility="hidden";
-									document.getElementById("group2").style.visibility="visible";
-									document.getElementById("result").innerHTML="<table><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea style='font-size : 12pt' rows='11' cols='30'>" + resfordisplay + " </textarea></td></tr></table>";
-								  
-									document.forms[0].barepeat.value="false";
-									
-								}
-								//ADD EVENT LISTENER TO IMAGE
-								//var img=document.getElementById('resultImage');
-								//img.onload=function(){
-								//	document.getElementById('okButtonContainer').style.display='block';
-								//};
-								setTimeout(function(){
-									document.getElementById('resultContainer').style.display='block';
-								},2500);
-							
-								
-								
-
-								
-							}
-							document.getElementById("output").innerHTML='';
-							document.getElementById("output").innerHTML=xmlhtp.substring(size);
-							size=xmlhtp.length;
-							
-							//document.getElementById("output").scrollTop = document.getElementById("output").scrollHeight; 
-							
-							
-							if(xmlhtp.indexOf("ERROR") > -1)
-							{
-								res="Device ERROR : Device is not connected. Connect the device properly and try again. If still problem persists, contact CMS Helpdesk";
-								window.opener.postMessage({ message: res, result: true }, "*");
-							}
-							
-							if(xmlhtp.indexOf("TimeOut") > -1)
-							{
-								res="TimeOut";
-								window.opener.postMessage({ message: res, result: true }, "*");
-							}
-							
-							if(xmlhtp.indexOf("Please Start Blowing") > -1 || xmlhtp.indexOf("Please blow into the BA device") > -1)
-							{
-								
-								clearInterval(timer); 
-								document.getElementById("output").style.background="green";  
-								
-								 if(document.forms[0].barepeat.value.indexOf("true") > -1 )
-								 {
-									
-									 //document.getElementById("output").innerHTML="Blowing Failure. Please blow contineously for 3 seconds into the BA device";
-									 document.getElementById("output").style.background="red";
-									 
-									 //startBreath();
-							     }
-								
-							}
-							
-						
-							
-					}
-				  }
-		}           
-			catch(e)
-				{
-					status="Not found";
-				}
-				
 		}
 
 
 
+		textarea {
 
-function returnToCMS(){
-	
-	window.opener.postMessage({ message: "cancel", result: true }, "*");
-
-}
-
-
-
-
-function trim(str)
-{
-   return str.replace(/^\s*|\s*$/g,"");
-}
+			color: black;
+			font-size: 12px;
+			align: center;
+			border: none;
+		}
 
 
-var timer;
 
-function blinkFont()
-{
-	 clearInterval(timer); 
-  document.getElementById("output").style.background="red";  
-  timer=setTimeout("setblinkFont()",300)
-}
-function setblinkFont()
-{
-	 clearInterval(timer); 
-  document.getElementById("output").style.background="";  
-  timer=setTimeout("blinkFont()",300)
-}
+		.button {
+			border-top: 1px solid #96d1f8;
+			background: #81c1eb;
+			background: -webkit-gradient(linear, left top, left bottom, from(#3e779d), to(#81c1eb));
+			background: -webkit-linear-gradient(top, #3e779d, #81c1eb);
+			background: -moz-linear-gradient(top, #3e779d, #81c1eb);
+			background: -ms-linear-gradient(top, #3e779d, #81c1eb);
+			background: -o-linear-gradient(top, #3e779d, #81c1eb);
 
+			-webkit-border-radius: 29px;
+			-moz-border-radius: 29px;
+			border-radius: 29px;
+			-webkit-box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
+			-moz-box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
+			box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
+			text-shadow: rgba(0, 0, 0, .4) 0 1px 0;
+			color: white;
+			font-size: 20px;
+			font-family: Georgia, Serif;
+			text-decoration: none;
+			vertical-align: middle;
+			width: 300px;
+			height: 100px;
+		}
 
-function onLoad()
-{
-	 clearInterval(timer); 
-	
-	 if(document.forms[0].barepeat.value.indexOf("true") > -1 )
-	 {		
-		 document.forms[0].method.disabled="true";
-		 document.forms[0].back.disabled="true";
-		 startBreath();		 
-     }
-	 document.getElementById("group1").style.visibility="visible";
-		document.getElementById("group2").style.visibility="hidden";
-  
-}
+		.button:hover {
+			border-top-color: #28597a;
+			background: #28597a;
+			color: #ccc;
+		}
 
-function okreturn()
-{
-	document.forms[0].crewid.value="";
-	document.forms[0].crewname.value="";
-	document.forms[0].crewdivision.value="";
-	document.forms[0].crewzone.value="";
-	
-	//alert(res);
-	window.opener.postMessage({ message: res, result: true }, "*");
-	window.close();
-	
-}
+		.button:active {
+			border-top-color: #2a4c63;
+			background: #2a4c63;
+		}
 
 
-</script>
- </html:form>
+		body {
+			font: 100% Lucida Sans;
+			height: 100%;
+		}
+
+		table.stat th,
+		table.stat td {
+			font-size: 65%;
+			font-family: "Myriad Web", Verdana, Helvetica, Arial, sans-serif;
+			background: #efe none;
+			color: #630;
+		}
+
+
+
+		div.int-box {
+			display: table-cell;
+			vertical-align: middle;
+			font-size: 100%;
+		}
+	</style>
+</head>
+
+<body style="height: 100%; width:100%;" onload="onLoad()">
+
+	<form th:action="@{/babio/startBreath}" method="post" th:object="${loginForm}" style="height: 100%; width:100%;">
+		<input type="hidden" name="crewid" th:value="${loginForm.crewid}" />
+		<input type="hidden" name="crewname" th:value="${loginForm.crewname}" />
+		<input type="hidden" name="crewdivision" th:value="${loginForm.crewdivision}" />
+		<input type="hidden" name="crewzone" th:value="${loginForm.crewzone}" />
+		<input type="hidden" name="barepeat" th:value="${loginForm.barepeat}" />
+		<input type="hidden" name="camstatus" th:value="${loginForm.camstatus}" />
+		<input type="hidden" name="back" value="" />
+		<input type="hidden" name="method" value="" />
+
+
+
+
+
+
+		<div id="group1">
+			<table style="height:100%; width:100%; " border="0" align="center" cellpadding="1">
+				<tr style="background-color: #84c754;">
+					<td style="height:10%; width:100%;" align="center" colspan="2">
+
+						<table style="height:100%; width:100%; ">
+							<tr style="background-color: #84c754;">
+								<td style="height:10%; width:30%;" align="center">
+									<table id="stat">
+										<tr>
+											<td th:text="${loginForm.crewid}"></td>
+										</tr>
+										<tr>
+											<td th:text="${loginForm.crewname}"></td>
+										</tr>
+
+									</table>
+
+								</td>
+								<td style="height:10%; width:40%;" align="center">
+									<h2>Breath Analyzer Test</h2>
+								</td>
+								<td style="height:10%; width:30%;" align="center">
+									<table id="stat">
+										<tr>
+											<td align="left">Division</td>
+											<td th:text="${loginForm.crewdivision}">
+										</tr>
+										<tr>
+											<td align="left">Zone</td>
+											<td th:text="${loginForm.crewzone}">
+										</tr>
+
+									</table>
+								</td>
+							</tr>
+						</table>
+
+					</td>
+				</tr>
+
+
+
+				<tr>
+					<td style="height:250px; width:100%;" valign="middle" align="center" colspan="2">
+						<div id="output" class="int-box">Click on the button to start the breath test</div>
+					</td>
+				</tr>
+
+				<tr>
+					<td style="height:30%; width:100%;" valign="top" align="center" colspan="2">
+						<div id="wait"></div>
+					</td>
+				</tr>
+
+
+				<tr>
+					<td valign="middle" align="center">
+						<button type="button" class="button" onclick="startBreath()">Start Breath</button>
+					</td>
+					<td valign="middle" align="center">
+						<button type="button" class="button" onclick="returnToCMS()">Back</button>
+					</td>
+
+				</tr>
+
+			</table>
+		</div>
+
+
+
+
+
+
+		<div id="group2">
+			<table style="height:100%; width:100%; " border="0" align="center" cellpadding="1">
+				<tr style="background-color: #84c754;">
+					<td style="height:10%; width:100%;" align="center" colspan="2">
+
+						<table style="height:100%; width:100%; ">
+							<tr style="background-color: #84c754;">
+								<td style="height:10%; width:30%;" align="center">
+									<table id="stat">
+										<tr>
+											<td th:text="${loginForm.crewid}"></td>
+										</tr>
+										<tr>
+											<td th:text="${loginForm.crewname}"></td>
+										</tr>
+
+									</table>
+
+								</td>
+								<td style="height:10%; width:40%;" align="center">
+									<h2>Breath Analyzer Test</h2>
+								</td>
+								<td style="height:10%; width:30%;" align="center">
+									<table id="stat">
+										<tr>
+											<td align="left">Division</td>
+											<td th:text="${loginForm.crewdivision}">
+										</tr>
+										<tr>
+											<td align="left">Zone</td>
+											<td th:text="${loginForm.crewzone}">
+										</tr>
+
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+
+
+
+				<tr>
+
+					<td style="height:100%; width:100%;" valign="middle" align="center" colspan="2">
+						<div id="result"></div>
+					</td>
+
+				</tr>
+
+
+				<tr>
+					<td style="height:30%; width:50%;" align="center" valign="top" colspan="2">
+						<div id="resultContainer" style="display: none;">
+							<div id="okButtonContainer">
+								<button type="button" class="button" onclick="okreturn()">OK</button>
+							</div>
+						</div>
+					</td>
+				</tr>
+
+			</table>
+		</div>
+
+
+
+		<script>
+
+
+			var reqFeature;
+			var xmlhtp;
+			var res;
+			var resfordisplay;
+			var size = 0;
+			var barepeat = "false";
+			var fullOutput = "";
+
+
+
+
+
+			function startBreath() {
+				document.forms[0].method.disabled = true;
+				document.forms[0].back.disabled = true;
+				document.getElementById("output").innerHTML = "Please Wait .... ";
+				document.getElementById("wait").innerHTML = '<img src="/images/ajax-loader.gif">';
+				blinkFont();
+
+				const formData = new FormData(document.forms[0]);
+				fetch('/babio/startBreath', { method: 'POST', body: formData })
+					.then(response => {
+						const reader = response.body.getReader();
+						let decoder = new TextDecoder();
+						let buffer = '';
+						function read() {
+							return reader.read().then(({ done, value }) => {
+								if (done) return;
+								buffer += decoder.decode(value, { stream: true });
+								let lines = buffer.split('\n');
+								buffer = lines.pop(); // Keep incomplete line for next chunk
+								for (let line of lines) {
+									if (line.trim() !== '') {
+										// Set xmlhtp to the current line for compatibility
+										xmlhtp = line;
+										fullOutput += line + "\n";
+										receiveOutput();
+									}
+								}
+								return read();
+							});
+						}
+						return read();
+					});
+			}
+
+
+			function receiveOutput() {
+        var camstatus = document.forms[0].camstatus.value;
+        var crewid = document.forms[0].crewid.value;
+        var picurl = "http://localhost/" + crewid + ".jpeg";
+
+        try {
+            document.getElementById("wait").innerHTML = '';
+
+            // Device-specific parsing and UI logic
+            if (fullOutput.indexOf("mg/100ml") > -1 || fullOutput.indexOf("mg/100mL") > -1) {
+
+                // Use fullOutput for all parsing to get the complete result block
+                if ((fullOutput.indexOf("KATS") > -1) || (fullOutput.indexOf("ALPHA") > -1)) {
+                    let start = fullOutput.indexOf("TAYAL");
+                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
+                    var today = new Date();
+                    var day = today.getDate();
+                    var twodigitday = day < 10 ? '0' + day : '' + day;
+                    var month = today.getMonth() + 1;
+                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
+                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+                    var hrs = today.getHours();
+                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+                    var min = today.getMinutes();
+                    var twodigitmin = min < 10 ? '0' + min : '' + min;
+                    var time = twodigithrs + ":" + twodigitmin;
+                    var newdatetime = "Date          : " + date + "\nTime          : " + time + "\n";
+                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Result"));
+                    res = res.replace(strtobereplaced, newdatetime);
+                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+
+                } else if (fullOutput.indexOf("TAYALTECH") > -1) {
+                    let start = fullOutput.indexOf("TAYAL");
+                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
+                    var today = new Date();
+                    var day = today.getDate();
+                    var twodigitday = day < 10 ? '0' + day : '' + day;
+                    var month = today.getMonth() + 1;
+                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
+                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+                    var hrs = today.getHours();
+                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+                    var min = today.getMinutes();
+                    var twodigitmin = min < 10 ? '0' + min : '' + min;
+                    var time = twodigithrs + ":" + twodigitmin;
+                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+                    res = res.replace(strtobereplaced, newdatetime);
+                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+
+                } else if (fullOutput.indexOf("PREKSHA") > -1) {
+                    let start = fullOutput.indexOf("PREKSHA");
+                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
+                    var today = new Date();
+                    var day = today.getDate();
+                    var twodigitday = day < 10 ? '0' + day : '' + day;
+                    var month = today.getMonth() + 1;
+                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
+                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+                    var hrs = today.getHours();
+                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+                    var min = today.getMinutes();
+                    var twodigitmin = min < 10 ? '0' + min : '' + min;
+                    var time = twodigithrs + ":" + twodigitmin;
+                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+                    res = res.replace(strtobereplaced, newdatetime);
+                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+
+                } else if (fullOutput.indexOf("ADDSOFT") > -1) {
+                    let start = fullOutput.indexOf("ADDSOFT");
+                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
+                    var today = new Date();
+                    var day = today.getDate();
+                    var twodigitday = day < 10 ? '0' + day : '' + day;
+                    var month = today.getMonth() + 1;
+                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
+                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+                    var hrs = today.getHours();
+                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+                    var min = today.getMinutes();
+                    var twodigitmin = min < 10 ? '0' + min : '' + min;
+                    var time = twodigithrs + ":" + twodigitmin;
+                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+                    res = res.replace(strtobereplaced, newdatetime);
+                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+
+                } else if (fullOutput.indexOf("NIGS") > -1) {
+                    let start = fullOutput.indexOf("NIGS");
+                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
+                    var today = new Date();
+                    var day = today.getDate();
+                    var twodigitday = day < 10 ? '0' + day : '' + day;
+                    var month = today.getMonth() + 1;
+                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
+                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+                    var hrs = today.getHours();
+                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+                    var min = today.getMinutes();
+                    var twodigitmin = min < 10 ? '0' + min : '' + min;
+                    var time = twodigithrs + ":" + twodigitmin;
+                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+                    res = res.replace(strtobereplaced, newdatetime);
+                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+
+                } else if (fullOutput.indexOf("SANCHAR") > -1) {
+                    let start = fullOutput.indexOf("SANCHAR");
+                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
+                    var today = new Date();
+                    var day = today.getDate();
+                    var twodigitday = day < 10 ? '0' + day : '' + day;
+                    var month = today.getMonth() + 1;
+                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
+                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+                    var hrs = today.getHours();
+                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+                    var min = today.getMinutes();
+                    var twodigitmin = min < 10 ? '0' + min : '' + min;
+                    var time = twodigithrs + ":" + twodigitmin;
+                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+                    res = res.replace(strtobereplaced, newdatetime);
+                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+
+                } else if (fullOutput.indexOf("QTEL") > -1) {
+                    let start = fullOutput.indexOf("QTEL");
+                    let end = fullOutput.indexOf("&@") > -1 ? fullOutput.indexOf("&@") - 1 : fullOutput.length;
+                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
+                    resfordisplay = res;
+                } else {
+                    res = fullOutput;
+                    let start = fullOutput.indexOf("Sr. no");
+                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+                    resfordisplay = fullOutput.substring(start, end);
+                }
+
+                var res1 = res;
+                res1 = res1.toLowerCase();
+
+                if (res1.indexOf("#0$0") > -1) {
+                    res1 = parseFloat(res1.substring(res1.indexOf("result") + 7, res1.indexOf("mg/100ml")));
+                } else if (res1.indexOf("bac:") > -1) {
+                    res1 = parseFloat(res1.substring(res1.indexOf("bac:") + 4, res1.indexOf("mg/100ml")));
+                } else {
+                    if (res1.indexOf("result") > -1) {
+                        res1 = parseFloat(res1.substring(res1.indexOf("result") + 13, res1.indexOf("mg/100ml")));
+                    }
+                }
+
+                if (res1 > 0.0) {
+                    document.getElementById("group1").style.visibility = "hidden";
+                    document.getElementById("group2").style.visibility = "visible";
+                    document.getElementById("result").innerHTML = "<table bgcolor='red'><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea rows='11' cols='30' style='background-color: red'>" + resfordisplay + " </textarea></td></tr></table>";
+                    document.forms[0].barepeat.value = "false";
+                    setTimeout(function () {
+                        var img = document.getElementById('resultImage');
+                        if (img) {
+                            img.src = img.src.split('?')[0] + '?t=' + new Date().getTime();
+                        }
+                    }, 1000);
+                } else {
+                    document.getElementById("group1").style.visibility = "hidden";
+                    document.getElementById("group2").style.visibility = "visible";
+                    document.getElementById("result").innerHTML = "<table><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea style='font-size : 12pt' rows='11' cols='30'>" + resfordisplay + " </textarea></td></tr></table>";
+                    document.forms[0].barepeat.value = "false";
+                    setTimeout(function () {
+                        var img = document.getElementById('resultImage');
+                        if (img) {
+                            img.src = img.src.split('?')[0] + '?t=' + new Date().getTime();
+                        }
+                    }, 1000);
+                }
+
+                setTimeout(function () {
+                    document.getElementById('resultContainer').style.display = 'block';
+                }, 2500);
+            }
+
+            // Always update output with the latest line
+            document.getElementById("output").innerHTML = xmlhtp;
+
+            // Error and status handling
+            if (xmlhtp.indexOf("ERROR") > -1) {
+                res = "Device ERROR : Device is not connected. Connect the device properly and try again. If still problem persists, contact CMS Helpdesk";
+                window.opener.postMessage({ message: res, result: true }, "*");
+            }
+
+            if (xmlhtp.indexOf("TimeOut") > -1) {
+                res = "TimeOut";
+                window.opener.postMessage({ message: res, result: true }, "*");
+            }
+
+            if (xmlhtp.indexOf("Please Start Blowing") > -1 || xmlhtp.indexOf("Please blow into the BA device") > -1) {
+                clearInterval(timer);
+                document.getElementById("output").style.background = "green";
+                if (document.forms[0].barepeat.value.indexOf("true") > -1) {
+                    document.getElementById("output").style.background = "red";
+                }
+            }
+
+        } catch (e) {
+            // Optionally handle errors
+        }
+    }
+
+
+
+			function returnToCMS() {
+
+				window.opener.postMessage({ message: "cancel", result: true }, "*");
+
+			}
+
+
+
+
+			function trim(str) {
+				return str.replace(/^\s*|\s*$/g, "");
+			}
+
+
+			var timer;
+
+			function blinkFont() {
+				clearInterval(timer);
+				document.getElementById("output").style.background = "red";
+				timer = setTimeout("setblinkFont()", 300)
+			}
+			function setblinkFont() {
+				clearInterval(timer);
+				document.getElementById("output").style.background = "";
+				timer = setTimeout("blinkFont()", 300)
+			}
+
+
+			function onLoad() {
+				clearInterval(timer);
+
+				if (document.forms[0].barepeat.value.indexOf("true") > -1) {
+					document.forms[0].method.disabled = "true";
+					document.forms[0].back.disabled = "true";
+					startBreath();
+				}
+				document.getElementById("group1").style.visibility = "visible";
+				document.getElementById("group2").style.visibility = "hidden";
+
+			}
+
+			function okreturn() {
+				document.forms[0].crewid.value = "";
+				document.forms[0].crewname.value = "";
+				document.forms[0].crewdivision.value = "";
+				document.forms[0].crewzone.value = "";
+
+				alert(res);
+				window.opener.postMessage({ message: res, result: true }, "*");
+				window.close();
+
+			}
+
+
+		</script>
+		</html:form>
 </body>
+
 </html>

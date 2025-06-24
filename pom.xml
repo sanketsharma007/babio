@@ -5,7 +5,7 @@
     <groupId>com.example</groupId>
     <artifactId>babio</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>babio</name>
     <description>Babio Spring Boot Project</description>
@@ -89,6 +89,7 @@
     </dependencies>
 
     <build>
+        <finalName>babio</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

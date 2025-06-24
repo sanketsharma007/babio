@@ -3,12 +3,15 @@ package com.cris.cms.image.controller;
 import com.cris.cms.image.model.LoginForm;
 import com.cris.cms.image.services.LoginService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.PrintWriter;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/babio")
@@ -21,12 +24,8 @@ public class LoginController {
 
     @GetMapping("/")
     public String showCrewDetails(Model model) {
+        model.addAttribute("loginForm", new LoginForm());
         return loginService.showCrewDetails(model);
-    }
-
-    @PostMapping("/turnOn")
-    public String turnOn(@ModelAttribute LoginForm loginForm, Model model) {
-        return loginService.turnOn(loginForm, model);
     }
 
     @PostMapping("/initiateBA")
@@ -35,13 +34,20 @@ public class LoginController {
     }
 
     @PostMapping("/startBreath")
-    @ResponseBody
-    public String startBreath(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
-        return loginService.startBreath(loginForm, model).getBody();
-    }
+public void startBreath(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
+    response.setContentType("text/plain");
+    response.setCharacterEncoding("UTF-8");
+    PrintWriter writer = response.getWriter();
+
+    // Call a new streaming method in your service
+    loginService.startBreath(loginForm, writer);
+
+    writer.flush();
+}
 
     @PostMapping("/initiateBio")
     public String initiateBio(@ModelAttribute LoginForm loginForm, Model model) {
+        model.addAttribute("loginForm", loginForm);
         return loginService.initiateBio(loginForm, model);
     }
 

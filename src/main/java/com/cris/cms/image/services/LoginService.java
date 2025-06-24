@@ -20,7 +20,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.ResponseEntity;
@@ -36,39 +35,7 @@ import com.cris.cms.image.utility.DBConnection;
 public class LoginService {
 
     public String showCrewDetails(Model model) {
-        model.addAttribute("loginForm", new LoginForm());
-        return "crewdetails";
-    }
-
-    public String turnOn(@ModelAttribute LoginForm loginForm, Model model) {
-        System.out.println("Inside Turn On");
-
-        String ret = "";
-        ProcessBuilder probuilder = new ProcessBuilder("./ba", "DUMMY", "10");
-
-        try {
-            probuilder.directory(new File("/usr/local"));
-            Process process = probuilder.start();
-
-            InputStream is = process.getInputStream();
-            InputStreamReader isr = new InputStreamReader(is);
-            BufferedReader br = new BufferedReader(isr);
-            String line;
-            while ((line = br.readLine()) != null) {
-                System.out.println(line);
-                ret += line + "\n";
-            }
-            int exitValue = process.waitFor();
-
-            loginForm.setOutput(ret);
-
-            System.out.println("\n\nExit Value is " + exitValue);
-
-        } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return "success";
+        return "crewDetails";
     }
 
     public String initiateBA(@ModelAttribute LoginForm loginForm, Model model) {
@@ -82,10 +49,9 @@ public class LoginService {
         return "welcome";
     }
 
-    public ResponseEntity<String> startBreath(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
+    public void startBreath(LoginForm loginForm, PrintWriter writer) throws Exception {
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  startBreath   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-        StringBuilder sb = new StringBuilder();
         String crewid = loginForm.getCrewid().trim();
         String crewstatus = loginForm.getCrewstatus();
         String signonid = loginForm.getSignonid();
@@ -137,10 +103,13 @@ public class LoginService {
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             boolean clicked = false;
 
+            System.out.println("cHECK 1 : ");
+
             if (camstatus.equals("Y")) {
                 if (ba_device.equalsIgnoreCase("QTEL")) {
                     while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        sb.append(line).append("\n");
+                        writer.println(line + "\n");
+                        writer.flush();
                         System.out.println("Line : " + line);
 
                         try {
@@ -154,13 +123,15 @@ public class LoginService {
                             }
                         } catch (NullPointerException e) {
                             System.out.println("CAMERA ERROR: " + e);
-                            sb.append("CAMERA ERROR\n");
+                            writer.println("CAMERA ERROR\n");
+                            writer.flush();
                             break;
                         }
                     }
                 } else {
                     while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        sb.append(line).append("\n");
+                        writer.println(line + "\n");
+                        writer.flush();
 
                         try {
                             if (!clicked && line.contains("Blowing")) {
@@ -173,7 +144,8 @@ public class LoginService {
                             }
                         } catch (NullPointerException e) {
                             System.out.println("CAMERA ERROR: " + e);
-                            sb.append("CAMERA ERROR\n");
+                            writer.println("CAMERA ERROR\n");
+                            writer.flush();
                             break;
                         }
                     }
@@ -181,23 +153,28 @@ public class LoginService {
             } else {
                 if (ba_device.equalsIgnoreCase("KY8000_CMS")) {
                     while (!(line.contains("calon")) && (line = r.readLine()) != null) {
-                        sb.append(line).append("\n");
+                        writer.println(line + "\n");
+                        writer.flush();
 
                     }
                 } else if (ba_device.equalsIgnoreCase("QTEL")) {
                     while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        sb.append(line).append("\n");
+                        writer.println(line + "\n");
+                        writer.flush();
 
                     }
                 } else {
                     while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        sb.append(line).append("\n");
+                        writer.println(line + "\n");
+                        writer.flush();
 
                     }
                 }
             }
 
-            sb.append(line).append("\n");
+             System.out.println("cHECK 2 : ");
+
+            writer.println(" image64: \n");
             if (camstatus.equals("Y")) {
                 try {
                     compress(crewid);
@@ -208,7 +185,7 @@ public class LoginService {
                         byte[] imageData = new byte[(int) file.length()];
                         imageInFile.read(imageData);
                         String imageDataString = Base64.encodeBase64URLSafeString(imageData);
-                        sb.append(imageDataString).append("\n");
+                        writer.println(imageDataString + "\n");
                         imageInFile.close();
                     }
                     System.out.println("Image Successfully Manipulated!");
@@ -218,13 +195,20 @@ public class LoginService {
                     System.out.println("Exception while reading the Image " + ioe);
                 }
             }
-            sb.append(":image64ends:").append("\n");
+            writer.println(":image64ends:");
+            writer.flush();
+
+            System.out.println("cHECK 3 : ");
 
             r.close();
+            writer.close();
         } catch (Exception e) {
             System.out.println("Ex : " + e);
         }
-        return ResponseEntity.ok(sb.toString());
+
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  startBreath   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println("\n\n\n\n\n");
+
     }
 
     private void click(String crewid) {
@@ -344,7 +328,7 @@ public class LoginService {
                     System.out.println("Second Finger : " + finger);
                     loginForm.setSecond_finger(finger);
 
-                    viewName = "bioReg";
+                    viewName = "bioVer";
                 } else { // DATA IS INCONSISTENT - DELETE EXISTING DATA AND GO FOR FRESH REGISTRATION
                     db.executeUpdate("DELETE FROM FP_Data WHERE crewid_v='" + crewid + "'");
                     System.out.println("Registration 1");
@@ -391,8 +375,6 @@ public class LoginService {
             }
         }
 
-        // Add the loginForm to the model so the view can use its data
-        model.addAttribute("loginForm", loginForm);
 
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  initiateBio   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("\n\n\n\n\n");
@@ -558,32 +540,32 @@ public class LoginService {
         return ResponseEntity.ok(sb.toString());
     }
 
-   public ResponseEntity<String> deleteFPData(@ModelAttribute LoginForm loginForm) {
-    System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteFPData   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+    public ResponseEntity<String> deleteFPData(@ModelAttribute LoginForm loginForm) {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteFPData   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-    DBConnection db = new DBConnection();
-    String crewid = loginForm.getCrewid().trim();
-    loginForm.setReregistration("true");
+        DBConnection db = new DBConnection();
+        String crewid = loginForm.getCrewid().trim();
+        loginForm.setReregistration("true");
 
-    System.out.println("Crew ID : " + crewid);
+        System.out.println("Crew ID : " + crewid);
 
-    int rowcount = 0;
-    String result = "fail";
+        int rowcount = 0;
+        String result = "fail";
 
-    try {
-        rowcount = db.executeUpdate("DELETE FROM FP_Data WHERE crewid_v='" + crewid + "'");
-        if (rowcount > 0)
-            result = "success";
-    } catch (Exception e) {
-        System.out.println("Error : " + e);
-    } finally {
-        db.closeCon();
+        try {
+            rowcount = db.executeUpdate("DELETE FROM FP_Data WHERE crewid_v='" + crewid + "'");
+            if (rowcount > 0)
+                result = "success";
+        } catch (Exception e) {
+            System.out.println("Error : " + e);
+        } finally {
+            db.closeCon();
+        }
+
+        System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  deleteFPData   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        System.out.println("\n\n\n\n\n");
+
+        return ResponseEntity.ok(result);
     }
-
-    System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  deleteFPData   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-    System.out.println("\n\n\n\n\n");
-
-    return ResponseEntity.ok(result);
-}
 
 }
