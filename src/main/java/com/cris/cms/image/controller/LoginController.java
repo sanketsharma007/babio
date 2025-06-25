@@ -21,7 +21,7 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @GetMapping("/")
+    @GetMapping(value = {"", "/"})
     public String showCrewDetails(Model model) {
         model.addAttribute("loginForm", new LoginForm());
         return loginService.showCrewDetails(model);
