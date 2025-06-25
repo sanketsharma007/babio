@@ -2,6 +2,7 @@ package com.cris.cms.image.services;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,6 +12,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.Vector;
@@ -30,6 +33,10 @@ import org.springframework.web.client.RestTemplate;
 
 import com.cris.cms.image.model.LoginForm;
 import com.cris.cms.image.utility.DBConnection;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class LoginService {
@@ -108,7 +115,7 @@ public class LoginService {
             if (camstatus.equals("Y")) {
                 if (ba_device.equalsIgnoreCase("QTEL")) {
                     while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        writer.println(line + "\n");
+                        writer.println(line);
                         writer.flush();
                         System.out.println("Line : " + line);
 
@@ -123,14 +130,14 @@ public class LoginService {
                             }
                         } catch (NullPointerException e) {
                             System.out.println("CAMERA ERROR: " + e);
-                            writer.println("CAMERA ERROR\n");
+                            writer.println("CAMERA ERROR");
                             writer.flush();
                             break;
                         }
                     }
                 } else {
                     while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        writer.println(line + "\n");
+                        writer.println(line);
                         writer.flush();
 
                         try {
@@ -144,7 +151,7 @@ public class LoginService {
                             }
                         } catch (NullPointerException e) {
                             System.out.println("CAMERA ERROR: " + e);
-                            writer.println("CAMERA ERROR\n");
+                            writer.println("CAMERA ERROR");
                             writer.flush();
                             break;
                         }
@@ -153,28 +160,28 @@ public class LoginService {
             } else {
                 if (ba_device.equalsIgnoreCase("KY8000_CMS")) {
                     while (!(line.contains("calon")) && (line = r.readLine()) != null) {
-                        writer.println(line + "\n");
+                        writer.println(line);
                         writer.flush();
 
                     }
                 } else if (ba_device.equalsIgnoreCase("QTEL")) {
                     while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        writer.println(line + "\n");
+                        writer.println(line);
                         writer.flush();
 
                     }
                 } else {
                     while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        writer.println(line + "\n");
+                        writer.println(line);
                         writer.flush();
 
                     }
                 }
             }
 
-             System.out.println("cHECK 2 : ");
+            System.out.println("cHECK 2 : ");
 
-            writer.println(" image64: \n");
+            writer.println(" image64:");
             if (camstatus.equals("Y")) {
                 try {
                     compress(crewid);
@@ -185,7 +192,7 @@ public class LoginService {
                         byte[] imageData = new byte[(int) file.length()];
                         imageInFile.read(imageData);
                         String imageDataString = Base64.encodeBase64URLSafeString(imageData);
-                        writer.println(imageDataString + "\n");
+                        writer.println(imageDataString);
                         imageInFile.close();
                     }
                     System.out.println("Image Successfully Manipulated!");
@@ -227,30 +234,61 @@ public class LoginService {
     private void compress(String crewid) throws FileNotFoundException, IOException {
         try {
             Thread.sleep(2000);
+
             String filename = "/var/www/" + crewid;
             File imageFile = new File(filename + "_temp.jpeg");
             File compressedImageFile = new File(filename + ".jpeg");
-            InputStream inputStream = new FileInputStream(imageFile);
-            OutputStream outputStream = new FileOutputStream(compressedImageFile);
-            float imageQuality = 0.1f;
-            BufferedImage bufferedImage = ImageIO.read(inputStream);
-            Iterator<ImageWriter> imageWriters = ImageIO.getImageWritersByFormatName("jpeg");
-            if (!imageWriters.hasNext())
-                throw new IllegalStateException("Writers Not Found!!");
-            ImageWriter imageWriter = imageWriters.next();
-            ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream);
-            imageWriter.setOutput(imageOutputStream);
-            ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
-            imageWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-            imageWriteParam.setCompressionQuality(imageQuality);
-            imageWriter.write(null, new IIOImage(bufferedImage, null, null), imageWriteParam);
-            inputStream.close();
-            outputStream.close();
-            imageOutputStream.close();
-            imageWriter.dispose();
-            ProcessBuilder pb1 = new ProcessBuilder("/bin/sh", "-c", "chmod 777 /var/www/" + crewid + ".jpeg");
-            pb1.directory(new File("/var/www"));
-            pb1.start();
+
+            long maxSize = 25 * 1024; // 25KB
+
+            if (imageFile.exists()) {
+                long actualSize = imageFile.length();
+
+                if (actualSize <= maxSize) {
+                    // If already <= 25KB, just copy the file as is
+                    try (InputStream in = new FileInputStream(imageFile);
+                            OutputStream out = new FileOutputStream(compressedImageFile)) {
+                        byte[] buf = new byte[4096];
+                        int len;
+                        while ((len = in.read(buf)) > 0) {
+                            out.write(buf, 0, len);
+                        }
+                    }
+                } else {
+                    // Compress the image
+                    float imageQuality = (float) maxSize / (float) actualSize;
+                    if (imageQuality > 1.0f)
+                        imageQuality = 1.0f;
+                    if (imageQuality < 0.05f)
+                        imageQuality = 0.05f; // avoid too much loss
+
+                    BufferedImage bufferedImage = ImageIO.read(imageFile);
+
+                    Iterator<ImageWriter> imageWriters = ImageIO.getImageWritersByFormatName("jpeg");
+                    if (!imageWriters.hasNext())
+                        throw new IllegalStateException("Writers Not Found!!");
+
+                    ImageWriter imageWriter = imageWriters.next();
+                    OutputStream outputStream = new FileOutputStream(compressedImageFile);
+                    ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream);
+                    imageWriter.setOutput(imageOutputStream);
+
+                    ImageWriteParam imageWriteParam = imageWriter.getDefaultWriteParam();
+                    imageWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    imageWriteParam.setCompressionQuality(imageQuality);
+
+                    imageWriter.write(null, new IIOImage(bufferedImage, null, null), imageWriteParam);
+
+                    imageOutputStream.close();
+                    outputStream.close();
+                    imageWriter.dispose();
+                }
+
+                // Set permissions
+                ProcessBuilder pb1 = new ProcessBuilder("/bin/sh", "-c", "chmod 777 /var/www/" + crewid + ".jpeg");
+                pb1.directory(new File("/var/www"));
+                pb1.start();
+            }
         } catch (Exception ex) {
             System.out.println("Compress Issue" + ex);
             ex.printStackTrace();
@@ -299,7 +337,7 @@ public class LoginService {
         return true;
     }
 
-    public String initiateBio(@ModelAttribute LoginForm loginForm, Model model) {
+    public String initiateBio(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  initiateBio   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
         DBConnection db = new DBConnection();
@@ -344,9 +382,9 @@ public class LoginService {
                             System.out.println("WS returned null");
                             viewName = "bioReg";
                         } else { // IF FP FOUND ON CENTRAL SERVER
-                            // parseJSONOutput(output, crewid);
-                            // loginForm.setFirst_finger(finger_no[0]);
-                            // loginForm.setSecond_finger(finger_no[1]);
+                            parseJSONOutput(output, crewid);
+                            loginForm.setFirst_finger(finger_no[0]);
+                            loginForm.setSecond_finger(finger_no[1]);
                             viewName = "bioVer";
                         }
                     } catch (Exception e) {
@@ -365,16 +403,9 @@ public class LoginService {
         } catch (Exception e) {
             System.out.println("Error : " + e);
         } finally {
-            try {
-                if (rs != null)
-                    rs.close();
-                db.closeCon();
-            } catch (Exception ex) {
-                // ignore
-                ex.printStackTrace();
-            }
+            rs.close();
+            db.closeCon();
         }
-
 
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  initiateBio   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("\n\n\n\n\n");
@@ -407,7 +438,70 @@ public class LoginService {
         return output;
     }
 
-    public ResponseEntity<String> bioVer(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
+    String[] finger_no = new String[2];
+    String[] finger_print = new String[2];
+
+    public void parseJSONOutput(String output, String crewid) {
+        DBConnection db = new DBConnection();
+        Connection conn;
+
+        try {
+            output = "{\"fpdata\":" + output + "}";
+
+            // System.out.println(output);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonobject = mapper.readTree(output);
+            JsonNode tsmarray = jsonobject.get("fpdata");
+
+            // EXTRACT THE VALUES
+            finger_no[0] = tsmarray.get(0).get("left_fingre_no").asText();
+            finger_no[1] = tsmarray.get(0).get("right_fingre_no").asText();
+
+            finger_print[0] = tsmarray.get(0).get("left_print").asText();
+            finger_print[1] = tsmarray.get(0).get("right_print").asText();
+
+            byte[] imgarr = null;
+            ByteArrayInputStream bis = null;
+
+            conn = db.getConnection(); // LOCAL DB
+            PreparedStatement ps = null;
+            String query = "insert into FP_Data(crewid_v ,finger_v ,fingerprint_B,Device_Name_v,synched) values (?, ?, ?, ?, ?)";
+
+            for (int i = 0; i < 2; i++) {
+                System.out.println("Finger No : " + finger_no[i]);
+                System.out.println("Finger Pr : " + finger_print[i]);
+
+                imgarr = Base64.decodeBase64(finger_print[i]);
+                bis = new ByteArrayInputStream(imgarr);
+
+                conn.setAutoCommit(false);
+
+                ps = conn.prepareStatement(query);
+                ps.setString(1, crewid);
+                ps.setString(2, finger_no[i]);
+                ps.setBinaryStream(3, bis);
+                ps.setString(4, "Bio");
+                ps.setString(5, "Y");
+                ps.executeUpdate();
+                conn.commit();
+
+                imgarr = null;
+                bis = null;
+
+            }
+
+            ps.close();
+            conn.close();
+
+        } catch (Exception e) {
+            System.out.println("Error : " + e);
+        } finally {
+
+        }
+
+    }
+
+    public void bioVer(LoginForm loginForm, PrintWriter writer) throws Exception {
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  BioVer   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
         ResultSet rs = null;
@@ -420,8 +514,6 @@ public class LoginService {
 
         String second_finger = loginForm.getSecond_finger().trim();
         System.out.println("Second Finger : " + second_finger);
-
-        StringBuilder sb = new StringBuilder();
 
         try {
             rs = db.executeQuery("SELECT * FROM Devices_Enable WHERE Device_Type_v='BIO'");
@@ -448,7 +540,8 @@ public class LoginService {
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
             while ((line = r.readLine()) != null) {
-                sb.append(line).append("\n");
+                writer.println(line);
+                writer.flush();
 
                 if (line.contains("<<NO MATCH>>")) { // IF VERIFICATION FAILS, DOWNLOAD THE LATEST FINGER PRINTS
                     rs = db.executeQuery("SELECT peer_ip_v FROM peers");
@@ -458,7 +551,7 @@ public class LoginService {
                             String output = getFPData(rs.getString("peer_ip_v"), crewid);
 
                             if (!output.equals("[null]")) { // IF FP FOUND ON CENTRAL SERVER
-                                // parseJSONOutput(output, crewid);
+                                 parseJSONOutput(output, crewid);
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -473,17 +566,17 @@ public class LoginService {
 
         } catch (Exception e) {
             System.out.println("Ex : " + e);
+        } finally {
+            writer.close();
         }
 
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  BioVer   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("\n\n\n\n\n");
-        return ResponseEntity.ok(sb.toString());
     }
 
-    public ResponseEntity<String> bioReg(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
+    public void bioReg(LoginForm loginForm, PrintWriter writer) throws Exception {
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  BioReg   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
-        StringBuilder sb = new StringBuilder();
         DBConnection db = new DBConnection();
 
         String crewid = loginForm.getCrewid().trim();
@@ -523,7 +616,8 @@ public class LoginService {
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
             while ((line = r.readLine()) != null) {
-                sb.append(line).append("\n");
+                writer.println(line);
+                writer.flush();
                 System.out.println("Line : " + line);
             }
 
@@ -531,16 +625,13 @@ public class LoginService {
 
         } catch (Exception e) {
             System.out.println("Ex : " + e);
-            sb.append("ERROR: ").append(e.getMessage());
         }
 
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  BioReg   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("\n\n\n\n\n");
-
-        return ResponseEntity.ok(sb.toString());
     }
 
-    public ResponseEntity<String> deleteFPData(@ModelAttribute LoginForm loginForm) {
+    public void deleteFPData(@ModelAttribute LoginForm loginForm, PrintWriter writer) {
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  deleteFPData   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
         DBConnection db = new DBConnection();
@@ -550,12 +641,15 @@ public class LoginService {
         System.out.println("Crew ID : " + crewid);
 
         int rowcount = 0;
-        String result = "fail";
 
         try {
             rowcount = db.executeUpdate("DELETE FROM FP_Data WHERE crewid_v='" + crewid + "'");
-            if (rowcount > 0)
-                result = "success";
+            if (rowcount > 0) {
+                writer.println("success");
+            } else {
+                writer.println("fail");
+            }
+            writer.flush();
         } catch (Exception e) {
             System.out.println("Error : " + e);
         } finally {
@@ -564,8 +658,6 @@ public class LoginService {
 
         System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<  deleteFPData   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         System.out.println("\n\n\n\n\n");
-
-        return ResponseEntity.ok(result);
     }
 
 }

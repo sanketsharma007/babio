@@ -299,217 +299,224 @@
 
 
 			function receiveOutput() {
-        var camstatus = document.forms[0].camstatus.value;
-        var crewid = document.forms[0].crewid.value;
-        var picurl = "http://localhost/" + crewid + ".jpeg";
+				//alert("fullOutput: " + fullOutput);
+				var camstatus = document.forms[0].camstatus.value;
+				var crewid = document.forms[0].crewid.value;
+				var picurl = "http://localhost/" + crewid + ".jpeg";
 
-        try {
-            document.getElementById("wait").innerHTML = '';
+				try {
+					document.getElementById("wait").innerHTML = '';
 
-            // Device-specific parsing and UI logic
-            if (fullOutput.indexOf("mg/100ml") > -1 || fullOutput.indexOf("mg/100mL") > -1) {
+					// Device-specific parsing and UI logic
+					if (fullOutput.indexOf("mg/100ml") > -1 || fullOutput.indexOf("mg/100mL") > -1) {
 
-                // Use fullOutput for all parsing to get the complete result block
-                if ((fullOutput.indexOf("KATS") > -1) || (fullOutput.indexOf("ALPHA") > -1)) {
-                    let start = fullOutput.indexOf("TAYAL");
-                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
-                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
-                    var today = new Date();
-                    var day = today.getDate();
-                    var twodigitday = day < 10 ? '0' + day : '' + day;
-                    var month = today.getMonth() + 1;
-                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
-                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-                    var hrs = today.getHours();
-                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
-                    var min = today.getMinutes();
-                    var twodigitmin = min < 10 ? '0' + min : '' + min;
-                    var time = twodigithrs + ":" + twodigitmin;
-                    var newdatetime = "Date          : " + date + "\nTime          : " + time + "\n";
-                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Result"));
-                    res = res.replace(strtobereplaced, newdatetime);
-                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+						// Use fullOutput for all parsing to get the complete result block
+						if ((fullOutput.indexOf("KATS") > -1) || (fullOutput.indexOf("ALPHA") > -1)) {
+							let start = fullOutput.indexOf("TAYAL");
+							res = fullOutput.substring(start);
+							var today = new Date();
+							var day = today.getDate();
+							var twodigitday = day < 10 ? '0' + day : '' + day;
+							var month = today.getMonth() + 1;
+							var twodigitmonth = month < 10 ? '0' + month : '' + month;
+							var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+							var hrs = today.getHours();
+							var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+							var min = today.getMinutes();
+							var twodigitmin = min < 10 ? '0' + min : '' + min;
+							var time = twodigithrs + ":" + twodigitmin;
+							var newdatetime = "Date          : " + date + "\nTime          : " + time + "\n";
+							var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Result"));
+							res = res.replace(strtobereplaced, newdatetime);
+							resfordisplay = fullOutput.substring(fullOutput.indexOf("TAYAL"), fullOutput.indexOf("image64:"));
+							resfordisplay = resfordisplay.replace(/^\s*[\r\n]/gm, "");
+							resfordisplay = resfordisplay.replace(strtobereplaced, newdatetime);
 
-                } else if (fullOutput.indexOf("TAYALTECH") > -1) {
-                    let start = fullOutput.indexOf("TAYAL");
-                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
-                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
-                    var today = new Date();
-                    var day = today.getDate();
-                    var twodigitday = day < 10 ? '0' + day : '' + day;
-                    var month = today.getMonth() + 1;
-                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
-                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-                    var hrs = today.getHours();
-                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
-                    var min = today.getMinutes();
-                    var twodigitmin = min < 10 ? '0' + min : '' + min;
-                    var time = twodigithrs + ":" + twodigitmin;
-                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
-                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
-                    res = res.replace(strtobereplaced, newdatetime);
-                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+						} else if (fullOutput.indexOf("TAYALTECH") > -1) {
+							let start = fullOutput.indexOf("TAYAL");
+							res = fullOutput.substring(start);
+							var today = new Date();
+							var day = today.getDate();
+							var twodigitday = day < 10 ? '0' + day : '' + day;
+							var month = today.getMonth() + 1;
+							var twodigitmonth = month < 10 ? '0' + month : '' + month;
+							var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+							var hrs = today.getHours();
+							var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+							var min = today.getMinutes();
+							var twodigitmin = min < 10 ? '0' + min : '' + min;
+							var time = twodigithrs + ":" + twodigitmin;
+							var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+							var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+							res = res.replace(strtobereplaced, newdatetime);
+							resfordisplay = fullOutput.substring(fullOutput.indexOf("TAYALTECH"), fullOutput.indexOf("image64:"));
+							resfordisplay = resfordisplay.replace(/^\s*[\r\n]/gm, "");
+							resfordisplay = resfordisplay.replace(strtobereplaced, newdatetime);
 
-                } else if (fullOutput.indexOf("PREKSHA") > -1) {
-                    let start = fullOutput.indexOf("PREKSHA");
-                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
-                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
-                    var today = new Date();
-                    var day = today.getDate();
-                    var twodigitday = day < 10 ? '0' + day : '' + day;
-                    var month = today.getMonth() + 1;
-                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
-                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-                    var hrs = today.getHours();
-                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
-                    var min = today.getMinutes();
-                    var twodigitmin = min < 10 ? '0' + min : '' + min;
-                    var time = twodigithrs + ":" + twodigitmin;
-                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
-                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
-                    res = res.replace(strtobereplaced, newdatetime);
-                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+						} else if (fullOutput.indexOf("PREKSHA") > -1) {
+							let start = fullOutput.indexOf("PREKSHA");
+							res = fullOutput.substring(start);
+							var today = new Date();
+							var day = today.getDate();
+							var twodigitday = day < 10 ? '0' + day : '' + day;
+							var month = today.getMonth() + 1;
+							var twodigitmonth = month < 10 ? '0' + month : '' + month;
+							var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+							var hrs = today.getHours();
+							var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+							var min = today.getMinutes();
+							var twodigitmin = min < 10 ? '0' + min : '' + min;
+							var time = twodigithrs + ":" + twodigitmin;
+							var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+							var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+							res = res.replace(strtobereplaced, newdatetime);
+							resfordisplay = fullOutput.substring(fullOutput.indexOf("PREKSHA"), fullOutput.indexOf("image64:"));
+							resfordisplay = resfordisplay.replace(/^\s*[\r\n]/gm, "");
+							resfordisplay = resfordisplay.replace(strtobereplaced, newdatetime);
 
-                } else if (fullOutput.indexOf("ADDSOFT") > -1) {
-                    let start = fullOutput.indexOf("ADDSOFT");
-                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
-                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
-                    var today = new Date();
-                    var day = today.getDate();
-                    var twodigitday = day < 10 ? '0' + day : '' + day;
-                    var month = today.getMonth() + 1;
-                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
-                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-                    var hrs = today.getHours();
-                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
-                    var min = today.getMinutes();
-                    var twodigitmin = min < 10 ? '0' + min : '' + min;
-                    var time = twodigithrs + ":" + twodigitmin;
-                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
-                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
-                    res = res.replace(strtobereplaced, newdatetime);
-                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+						} else if (fullOutput.indexOf("ADDSOFT") > -1) {
+							let start = fullOutput.indexOf("ADDSOFT");
+							res = fullOutput.substring(start);
+							var today = new Date();
+							var day = today.getDate();
+							var twodigitday = day < 10 ? '0' + day : '' + day;
+							var month = today.getMonth() + 1;
+							var twodigitmonth = month < 10 ? '0' + month : '' + month;
+							var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+							var hrs = today.getHours();
+							var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+							var min = today.getMinutes();
+							var twodigitmin = min < 10 ? '0' + min : '' + min;
+							var time = twodigithrs + ":" + twodigitmin;
+							var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+							var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+							res = res.replace(strtobereplaced, newdatetime);
+							resfordisplay = fullOutput.substring(fullOutput.indexOf("ADDSOFT"), fullOutput.indexOf("image64:"));
+							resfordisplay = resfordisplay.replace(/^\s*[\r\n]/gm, "");
+							resfordisplay = resfordisplay.replace(strtobereplaced, newdatetime);
 
-                } else if (fullOutput.indexOf("NIGS") > -1) {
-                    let start = fullOutput.indexOf("NIGS");
-                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
-                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
-                    var today = new Date();
-                    var day = today.getDate();
-                    var twodigitday = day < 10 ? '0' + day : '' + day;
-                    var month = today.getMonth() + 1;
-                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
-                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-                    var hrs = today.getHours();
-                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
-                    var min = today.getMinutes();
-                    var twodigitmin = min < 10 ? '0' + min : '' + min;
-                    var time = twodigithrs + ":" + twodigitmin;
-                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
-                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
-                    res = res.replace(strtobereplaced, newdatetime);
-                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+						} else if (fullOutput.indexOf("NIGS") > -1) {
+							let start = fullOutput.indexOf("NIGS");
+							res = fullOutput.substring(start);
+							var today = new Date();
+							var day = today.getDate();
+							var twodigitday = day < 10 ? '0' + day : '' + day;
+							var month = today.getMonth() + 1;
+							var twodigitmonth = month < 10 ? '0' + month : '' + month;
+							var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+							var hrs = today.getHours();
+							var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+							var min = today.getMinutes();
+							var twodigitmin = min < 10 ? '0' + min : '' + min;
+							var time = twodigithrs + ":" + twodigitmin;
+							var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+							var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+							res = res.replace(strtobereplaced, newdatetime);
+							resfordisplay = fullOutput.substring(fullOutput.indexOf("NIGS"), fullOutput.indexOf("image64:"));
+							resfordisplay = resfordisplay.replace(/^\s*[\r\n]/gm, "");
+							resfordisplay = resfordisplay.replace(strtobereplaced, newdatetime);
 
-                } else if (fullOutput.indexOf("SANCHAR") > -1) {
-                    let start = fullOutput.indexOf("SANCHAR");
-                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
-                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
-                    var today = new Date();
-                    var day = today.getDate();
-                    var twodigitday = day < 10 ? '0' + day : '' + day;
-                    var month = today.getMonth() + 1;
-                    var twodigitmonth = month < 10 ? '0' + month : '' + month;
-                    var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
-                    var hrs = today.getHours();
-                    var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
-                    var min = today.getMinutes();
-                    var twodigitmin = min < 10 ? '0' + min : '' + min;
-                    var time = twodigithrs + ":" + twodigitmin;
-                    var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
-                    var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
-                    res = res.replace(strtobereplaced, newdatetime);
-                    resfordisplay = res.replace(strtobereplaced, newdatetime);
+						} else if (fullOutput.indexOf("SANCHAR") > -1) {
+							let start = fullOutput.indexOf("SANCHAR");
+							res = fullOutput.substring(start);
+							var today = new Date();
+							var day = today.getDate();
+							var twodigitday = day < 10 ? '0' + day : '' + day;
+							var month = today.getMonth() + 1;
+							var twodigitmonth = month < 10 ? '0' + month : '' + month;
+							var date = twodigitday + "/" + twodigitmonth + "/" + today.getFullYear();
+							var hrs = today.getHours();
+							var twodigithrs = hrs < 10 ? '0' + hrs : '' + hrs;
+							var min = today.getMinutes();
+							var twodigitmin = min < 10 ? '0' + min : '' + min;
+							var time = twodigithrs + ":" + twodigitmin;
+							var newdatetime = "Date        : " + date + "\nTime        : " + time + "\n";
+							var strtobereplaced = res.substring(res.indexOf("Date"), res.indexOf("Exhale vol"));
+							res = res.replace(strtobereplaced, newdatetime);
+							resfordisplay = fullOutput.substring(fullOutput.indexOf("SANCHAR"), fullOutput.indexOf("image64:"));
+							resfordisplay = resfordisplay.replace(/^\s*[\r\n]/gm, "");
+							resfordisplay = resfordisplay.replace(strtobereplaced, newdatetime);
 
-                } else if (fullOutput.indexOf("QTEL") > -1) {
-                    let start = fullOutput.indexOf("QTEL");
-                    let end = fullOutput.indexOf("&@") > -1 ? fullOutput.indexOf("&@") - 1 : fullOutput.length;
-                    res = fullOutput.substring(start, end).replace(/^\s*[\r\n]/gm, "");
-                    resfordisplay = res;
-                } else {
-                    res = fullOutput;
-                    let start = fullOutput.indexOf("Sr. no");
-                    let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
-                    resfordisplay = fullOutput.substring(start, end);
-                }
+						} else if (fullOutput.indexOf("QTEL") > -1) {
+							let start = fullOutput.indexOf("QTEL");
+							res = fullOutput.substring(start);
+							resfordisplay = res.substring(fullOutput.indexOf("QTEL"), fullOutput.indexOf("&@") - 1).replace(/^\s*[\r\n]/gm, "");;
+						} else {
+							res = fullOutput;
+							let start = fullOutput.indexOf("Sr. no");
+							let end = fullOutput.indexOf("image64:") > -1 ? fullOutput.indexOf("image64:") : fullOutput.length;
+							resfordisplay = fullOutput.substring(start, end);
+						}
 
-                var res1 = res;
-                res1 = res1.toLowerCase();
+						var res1 = res;
+						res1 = res1.toLowerCase();
 
-                if (res1.indexOf("#0$0") > -1) {
-                    res1 = parseFloat(res1.substring(res1.indexOf("result") + 7, res1.indexOf("mg/100ml")));
-                } else if (res1.indexOf("bac:") > -1) {
-                    res1 = parseFloat(res1.substring(res1.indexOf("bac:") + 4, res1.indexOf("mg/100ml")));
-                } else {
-                    if (res1.indexOf("result") > -1) {
-                        res1 = parseFloat(res1.substring(res1.indexOf("result") + 13, res1.indexOf("mg/100ml")));
-                    }
-                }
+						if (res1.indexOf("#0$0") > -1) {
+							res1 = parseFloat(res1.substring(res1.indexOf("result") + 7, res1.indexOf("mg/100ml")));
+						} else if (res1.indexOf("bac:") > -1) {
+							res1 = parseFloat(res1.substring(res1.indexOf("bac:") + 4, res1.indexOf("mg/100ml")));
+						} else {
+							if (res1.indexOf("result") > -1) {
+								res1 = parseFloat(res1.substring(res1.indexOf("result") + 13, res1.indexOf("mg/100ml")));
+							}
+						}
 
-                if (res1 > 0.0) {
-                    document.getElementById("group1").style.visibility = "hidden";
-                    document.getElementById("group2").style.visibility = "visible";
-                    document.getElementById("result").innerHTML = "<table bgcolor='red'><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea rows='11' cols='30' style='background-color: red'>" + resfordisplay + " </textarea></td></tr></table>";
-                    document.forms[0].barepeat.value = "false";
-                    setTimeout(function () {
-                        var img = document.getElementById('resultImage');
-                        if (img) {
-                            img.src = img.src.split('?')[0] + '?t=' + new Date().getTime();
-                        }
-                    }, 1000);
-                } else {
-                    document.getElementById("group1").style.visibility = "hidden";
-                    document.getElementById("group2").style.visibility = "visible";
-                    document.getElementById("result").innerHTML = "<table><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea style='font-size : 12pt' rows='11' cols='30'>" + resfordisplay + " </textarea></td></tr></table>";
-                    document.forms[0].barepeat.value = "false";
-                    setTimeout(function () {
-                        var img = document.getElementById('resultImage');
-                        if (img) {
-                            img.src = img.src.split('?')[0] + '?t=' + new Date().getTime();
-                        }
-                    }, 1000);
-                }
+						if (res1 > 0.0) {
+							document.getElementById("group1").style.visibility = "hidden";
+							document.getElementById("group2").style.visibility = "visible";
+							document.getElementById("result").innerHTML = "<table bgcolor='red'><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea rows='11' cols='30' style='background-color: red'>" + resfordisplay + " </textarea></td></tr></table>";
+							document.forms[0].barepeat.value = "false";
+							setTimeout(function () {
+								var img = document.getElementById('resultImage');
+								if (img) {
+									img.src = img.src.split('?')[0] + '?t=' + new Date().getTime();
+								}
+							}, 1000);
+						} else {
+							document.getElementById("group1").style.visibility = "hidden";
+							document.getElementById("group2").style.visibility = "visible";
+							document.getElementById("result").innerHTML = "<table><tr><td><img id='resultImage' src='" + picurl + "'/></td><td> <textarea style='font-size : 12pt' rows='11' cols='30'>" + resfordisplay + " </textarea></td></tr></table>";
+							document.forms[0].barepeat.value = "false";
+							setTimeout(function () {
+								var img = document.getElementById('resultImage');
+								if (img) {
+									img.src = img.src.split('?')[0] + '?t=' + new Date().getTime();
+								}
+							}, 1000);
+						}
 
-                setTimeout(function () {
-                    document.getElementById('resultContainer').style.display = 'block';
-                }, 2500);
-            }
+						setTimeout(function () {
+							document.getElementById('resultContainer').style.display = 'block';
+						}, 2500);
+					}
 
-            // Always update output with the latest line
-            document.getElementById("output").innerHTML = xmlhtp;
+					// Always update output with the latest line
+					document.getElementById("output").innerHTML = xmlhtp;
 
-            // Error and status handling
-            if (xmlhtp.indexOf("ERROR") > -1) {
-                res = "Device ERROR : Device is not connected. Connect the device properly and try again. If still problem persists, contact CMS Helpdesk";
-                window.opener.postMessage({ message: res, result: true }, "*");
-            }
+					// Error and status handling
+					if (xmlhtp.indexOf("ERROR") > -1) {
+						res = "Device ERROR : Device is not connected. Connect the device properly and try again. If still problem persists, contact CMS Helpdesk";
+						window.opener.postMessage({ message: res, result: true }, "*");
+					}
 
-            if (xmlhtp.indexOf("TimeOut") > -1) {
-                res = "TimeOut";
-                window.opener.postMessage({ message: res, result: true }, "*");
-            }
+					if (xmlhtp.indexOf("TimeOut") > -1) {
+						res = "TimeOut";
+						window.opener.postMessage({ message: res, result: true }, "*");
+					}
 
-            if (xmlhtp.indexOf("Please Start Blowing") > -1 || xmlhtp.indexOf("Please blow into the BA device") > -1) {
-                clearInterval(timer);
-                document.getElementById("output").style.background = "green";
-                if (document.forms[0].barepeat.value.indexOf("true") > -1) {
-                    document.getElementById("output").style.background = "red";
-                }
-            }
+					if (xmlhtp.indexOf("Please Start Blowing") > -1 || xmlhtp.indexOf("Please blow into the BA device") > -1) {
+						clearInterval(timer);
+						document.getElementById("output").style.background = "green";
+						if (document.forms[0].barepeat.value.indexOf("true") > -1) {
+							document.getElementById("output").style.background = "red";
+						}
+					}
 
-        } catch (e) {
-            // Optionally handle errors
-        }
-    }
+				} catch (e) {
+					// Optionally handle errors
+					status = "Not Found";
+				}
+			}
 
 
 

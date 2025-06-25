@@ -1,341 +1,301 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <head>
-    <title>CMS Bio Verify</title>
-    <style>
-      /* Stylesheet 1: */
-      textarea {
-        font-family: Georgia, Serif;
-        color: black;
-        font-size: 25px;
-        text-align: center;
-        border: 0;
-      }
-      .button {
-        border-top: 1px solid #96d1f8;
-        background: #81c1eb;
-        background: -webkit-gradient(
-          linear,
+<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+<head>
+  <title>CMS Bio Verify</title>
+  <style>
+    /* Stylesheet 1: */
+    textarea {
+      font-family: Georgia, Serif;
+      color: black;
+      font-size: 25px;
+      text-align: center;
+      border: 0;
+    }
+
+    .button {
+      border-top: 1px solid #96d1f8;
+      background: #81c1eb;
+      background: -webkit-gradient(linear,
           left top,
           left bottom,
           from(#3e779d),
-          to(#81c1eb)
-        );
-        background: -webkit-linear-gradient(top, #3e779d, #81c1eb);
-        background: -moz-linear-gradient(top, #3e779d, #81c1eb);
-        background: -ms-linear-gradient(top, #3e779d, #81c1eb);
-        background: -o-linear-gradient(top, #3e779d, #81c1eb);
-        -webkit-border-radius: 29px;
-        -moz-border-radius: 29px;
-        border-radius: 29px;
-        -webkit-box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
-        -moz-box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
-        box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
-        text-shadow: rgba(0, 0, 0, 0.4) 0 1px 0;
-        color: white;
-        font-size: 20px;
-        font-family: Georgia, Serif;
-        text-decoration: none;
-        vertical-align: middle;
-        width: 200px;
-        height: 40px;
-        position: absolute;
-        top: 510px;
-        left: 250px;
-      }
-      .button:hover {
-        border-top-color: #28597a;
-        background: #28597a;
-        color: #ccc;
-      }
-      .button:active {
-        border-top-color: #2a4c63;
-        background: #2a4c63;
-      }
-      .circleBase {
-        border-radius: 50%;
-        width: 35px;
-        height: 35px;
-        background: white;
-        border: 1px solid blue;
-      }
-      .type1 {
-        position: absolute;
-        top: 265px;
-        left: 103px;
-      }
-      .type2 {
-        position: absolute;
-        top: 230px;
-        left: 150px;
-      }
-      .type3 {
-        position: absolute;
-        top: 215px;
-        left: 210px;
-      }
-      .type4 {
-        position: absolute;
-        top: 235px;
-        left: 270px;
-      }
-      .type5 {
-        position: absolute;
-        top: 325px;
-        left: 310px;
-      }
-      .type6 {
-        position: absolute;
-        top: 325px;
-        left: 355px;
-      }
-      .type7 {
-        position: absolute;
-        top: 233px;
-        left: 392px;
-      }
-      .type8 {
-        position: absolute;
-        top: 215px;
-        left: 460px;
-      }
-      .type9 {
-        position: absolute;
-        top: 230px;
-        left: 520px;
-      }
-      .type10 {
-        position: absolute;
-        top: 265px;
-        left: 565px;
-      }
-      .imgclass {
-        position: absolute;
-        top: 218px;
-        left: 100px;
-        opacity: 0.4;
-      }
-    </style>
-  </head>
-  <body style="height: 100%; width: 100%" onload="onLoad()">
-    <form
-      th:action="@{/bioVer}"
-      th:object="${loginForm}"
-      method="post"
-      style="height: 100%; width: 100%"
-    >
-      <input type="hidden" th:field="*{crewid}" />
-      <input type="hidden" th:field="*{first_finger}" />
-      <input type="hidden" th:field="*{second_finger}" />
-      <input type="hidden" th:field="*{reregistration}" />
-      <table
-        style="height: 100%; width: 100%"
-        border="0"
-        align="center"
-        cellpadding="1"
-      >
-        <tr style="background-color: #84c754">
-          <td style="height: 10%; width: 100%" align="center">
-            <table
-              style="height: 100%; width: 100%"
-              border="0"
-              align="center"
-              cellpadding="1"
-            >
-              <tr style="background-color: #84c754">
-                <td style="height: 10%; width: 20%" align="center">
-                  Crew ID: <span th:text="${loginForm.crewid}"></span>
-                </td>
-                <td style="height: 10%; width: 20%" align="center">
-                  <div id="blink1"><h1>Verification</h1></div>
-                </td>
-                <td style="height: 10%; width: 60%" text-align="center"></td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td style="height: 10%; width: 100%; text-align: center;">
-           <div
-  id="output"
-  style="width: 800px; margin-left: 0; display: block; text-align: left; padding: 8px; min-height: 24px; font-family: inherit; font-size: 2em; font-weight: bold;">
-  Please place your finger on the sensor
-</div>
-          </td>
-        </tr>
-        <tr style="height: 60%; width: 100%">
-          <td text-align="center" valign="middle">
-            <div
-              id="L1"
-              class="circleBase type1"
-              onclick="selectFinger('L1')"
-            ></div>
-            <div
-              id="L2"
-              class="circleBase type2"
-              onclick="selectFinger('L2')"
-            ></div>
-            <div
-              id="L3"
-              class="circleBase type3"
-              onclick="selectFinger('L3')"
-            ></div>
-            <div
-              id="L4"
-              class="circleBase type4"
-              onclick="selectFinger('L4')"
-            ></div>
-            <div
-              id="L5"
-              class="circleBase type5"
-              onclick="selectFinger('L5')"
-            ></div>
-            <div
-              id="R5"
-              class="circleBase type6"
-              onclick="selectFinger('R5')"
-            ></div>
-            <div
-              id="R4"
-              class="circleBase type7"
-              onclick="selectFinger('R4')"
-            ></div>
-            <div
-              id="R3"
-              class="circleBase type8"
-              onclick="selectFinger('R3')"
-            ></div>
-            <div
-              id="R2"
-              class="circleBase type9"
-              onclick="selectFinger('R2')"
-            ></div>
-            <div
-              id="R1"
-              class="circleBase type10"
-              onclick="selectFinger('R1')"
-            ></div>
-            <img text-align="middle" class="imgclass" src="/images/hands.png" />
-          </td>
-        </tr>
-      </table>
-    </form>
+          to(#81c1eb));
+      background: -webkit-linear-gradient(top, #3e779d, #81c1eb);
+      background: -moz-linear-gradient(top, #3e779d, #81c1eb);
+      background: -ms-linear-gradient(top, #3e779d, #81c1eb);
+      background: -o-linear-gradient(top, #3e779d, #81c1eb);
+      -webkit-border-radius: 29px;
+      -moz-border-radius: 29px;
+      border-radius: 29px;
+      -webkit-box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
+      -moz-box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
+      box-shadow: rgba(0, 0, 0, 1) 0 1px 0;
+      text-shadow: rgba(0, 0, 0, 0.4) 0 1px 0;
+      color: white;
+      font-size: 20px;
+      font-family: Georgia, Serif;
+      text-decoration: none;
+      vertical-align: middle;
+      width: 200px;
+      height: 40px;
+      position: absolute;
+      top: 510px;
+      left: 250px;
+    }
 
-    <script>
-      var reqFeature;
-      var xmlhtp;
+    .button:hover {
+      border-top-color: #28597a;
+      background: #28597a;
+      color: #ccc;
+    }
 
-      function trim(str) {
-        return str.replace(/^\s*|\s*$/g, "");
-      }
+    .button:active {
+      border-top-color: #2a4c63;
+      background: #2a4c63;
+    }
 
-      function onLoad() {
-        var div;
-        var first_finger = document.forms[0].first_finger.value;
-        div = document.getElementById(first_finger);
-        div.style.backgroundColor = "red";
+    .circleBase {
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      background: white;
+      border: 1px solid blue;
+    }
 
-        var second_finger = document.forms[0].second_finger.value;
-        div = document.getElementById(second_finger);
-        div.style.backgroundColor = "red";
+    .type1 {
+      position: absolute;
+      top: 265px;
+      left: 103px;
+    }
 
-        blinkFont();
-        BioVer();
-      }
+    .type2 {
+      position: absolute;
+      top: 230px;
+      left: 150px;
+    }
 
-      function blinkFont() {
-        document.getElementById("blink1").style.color = "red";
-        setTimeout("setblinkFont()", 300);
-      }
+    .type3 {
+      position: absolute;
+      top: 215px;
+      left: 210px;
+    }
 
-      function setblinkFont() {
-        document.getElementById("blink1").style.color = "";
-        setTimeout("blinkFont()", 300);
-      }
+    .type4 {
+      position: absolute;
+      top: 235px;
+      left: 270px;
+    }
 
-      function BioVer() {
-        var form = document.forms[0];
-        if (!form.crewid.value || !form.first_finger.value || !form.second_finger.value) {
+    .type5 {
+      position: absolute;
+      top: 325px;
+      left: 310px;
+    }
+
+    .type6 {
+      position: absolute;
+      top: 325px;
+      left: 355px;
+    }
+
+    .type7 {
+      position: absolute;
+      top: 233px;
+      left: 392px;
+    }
+
+    .type8 {
+      position: absolute;
+      top: 215px;
+      left: 460px;
+    }
+
+    .type9 {
+      position: absolute;
+      top: 230px;
+      left: 520px;
+    }
+
+    .type10 {
+      position: absolute;
+      top: 265px;
+      left: 565px;
+    }
+
+    .imgclass {
+      position: absolute;
+      top: 218px;
+      left: 100px;
+      opacity: 0.4;
+    }
+  </style>
+</head>
+
+<body style="height: 100%; width: 100%" onload="onLoad()">
+  <form th:action="@{/bioVer}" th:object="${loginForm}" method="post" style="height: 100%; width: 100%">
+    <input type="hidden" th:field="*{crewid}" />
+    <input type="hidden" th:field="*{first_finger}" />
+    <input type="hidden" th:field="*{second_finger}" />
+    <input type="hidden" th:field="*{reregistration}" />
+    <table style="height: 100%; width: 100%" border="0" align="center" cellpadding="1">
+      <tr style="background-color: #84c754">
+        <td style="height: 10%; width: 100%" align="center">
+          <table style="height: 100%; width: 100%" border="0" align="center" cellpadding="1">
+            <tr style="background-color: #84c754">
+              <td style="height: 10%; width: 20%" align="center">
+                Crew ID: <span th:text="${loginForm.crewid}"></span>
+              </td>
+              <td style="height: 10%; width: 20%" align="center">
+                <div id="blink1">
+                  <h1>Verification</h1>
+                </div>
+              </td>
+              <td style="height: 10%; width: 60%" text-align="center"></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="height: 10%; width: 100%; text-align: center;">
+          <div id="output"
+            style="width: 800px; margin-left: 0; display: block; text-align: left; padding: 8px; min-height: 24px; font-family: inherit; font-size: 2em; font-weight: bold;">
+            Please place your finger on the sensor
+          </div>
+        </td>
+      </tr>
+      <tr style="height: 60%; width: 100%">
+        <td text-align="center" valign="middle">
+          <div id="L1" class="circleBase type1" onclick="selectFinger('L1')"></div>
+          <div id="L2" class="circleBase type2" onclick="selectFinger('L2')"></div>
+          <div id="L3" class="circleBase type3" onclick="selectFinger('L3')"></div>
+          <div id="L4" class="circleBase type4" onclick="selectFinger('L4')"></div>
+          <div id="L5" class="circleBase type5" onclick="selectFinger('L5')"></div>
+          <div id="R5" class="circleBase type6" onclick="selectFinger('R5')"></div>
+          <div id="R4" class="circleBase type7" onclick="selectFinger('R4')"></div>
+          <div id="R3" class="circleBase type8" onclick="selectFinger('R3')"></div>
+          <div id="R2" class="circleBase type9" onclick="selectFinger('R2')"></div>
+          <div id="R1" class="circleBase type10" onclick="selectFinger('R1')"></div>
+          <img text-align="middle" class="imgclass" src="/images/hands.png" />
+        </td>
+      </tr>
+    </table>
+  </form>
+
+  <script>
+
+    function trim(str) {
+      return str.replace(/^\s*|\s*$/g, "");
+    }
+
+    function onLoad() {
+      var div;
+      var first_finger = document.forms[0].first_finger.value;
+      div = document.getElementById(first_finger);
+      div.style.backgroundColor = "red";
+
+      var second_finger = document.forms[0].second_finger.value;
+      div = document.getElementById(second_finger);
+      div.style.backgroundColor = "red";
+
+      blinkFont();
+      BioVer();
+    }
+
+    function blinkFont() {
+      document.getElementById("blink1").style.color = "red";
+      setTimeout("setblinkFont()", 300);
+    }
+
+    function setblinkFont() {
+      document.getElementById("blink1").style.color = "";
+      setTimeout("blinkFont()", 300);
+    }
+
+
+    let fullOutput = "";
+    let xmlhtp = "";
+    var res;
+
+    function BioVer() {
+      var form = document.forms[0];
+      if (!form.crewid.value || !form.first_finger.value || !form.second_finger.value) {
         alert("Missing required biometric data.");
         return;
-        }
-        var formData = new FormData(form);
-       // alert("firstFinger: "+formData.get("first_finger"));
-
-        fetch("/babio/bioVer", {
-          method: "POST",
-          body: formData,
-        })
-          .then((response) => response.text())
-          .then((data) => {
-            // Handle the response as needed
-            // For example, update the output textarea:
-            document.getElementById("output").value = data;
-            // You can also process the result as in your original receiveOutput function
-          })
-          .catch((error) => {
-            document.getElementById("output").value = "Error: " + error;
-          });
       }
+      var formData = new FormData(form);
 
-      function receiveOutput() {
-        var status;
-        try {
-          status = reqFeature.status;
-          if (reqFeature.readyState == 4) {
-            // Complete
-            if (reqFeature.status == 200) {
-              // OK response
-              xmlhtp = reqFeature.responseText;
-              if (xmlhtp.indexOf("ERROR") > -1) {
-                res = "Device Error";
-                window.opener.postMessage({ message: res, result: true }, "*");
-              } else if (xmlhtp.indexOf("TIMEOUT") > -1) {
-                res = "Operation Timed Out. Please Try again.";
-                window.opener.postMessage({ message: res, result: true }, "*");
-              } else if (xmlhtp.indexOf("<<MATCH>>") > -1) {
-                if (document.forms[0].reregistration.value == "true") {
-                  res = "Re-Registration Process is successful";
-                  window.opener.postMessage(
-                    { message: res, result: true },
-                    "*"
-                  );
-                } else {
-                  res = "Verified";
-                  if (document.forms[0].crewid.value == "TEST") {
-                    alert("Fingerprint Matched");
-                  }
-                  window.opener.postMessage(
-                    { message: res, result: true },
-                    "*"
-                  );
-                }
-              } else if (xmlhtp.indexOf("<<NO MATCH>>") > -1) {
-                if (document.forms[0].reregistration.value == "true") {
-                  res = "Re-Registration Process is failed. Please try again";
-                  window.opener.postMessage(
-                    { message: res, result: true },
-                    "*"
-                  );
-                } else {
-                  res = "Verification Failed. Please try again";
-                  window.opener.postMessage(
-                    { message: res, result: true },
-                    "*"
-                  );
+      fetch("/babio/bioVer", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          const reader = response.body.getReader();
+          let decoder = new TextDecoder();
+          let buffer = '';
+          function read() {
+            return reader.read().then(({ done, value }) => {
+              if (done) return;
+              buffer += decoder.decode(value, { stream: true });
+              let lines = buffer.split('\n');
+              buffer = lines.pop(); // Keep incomplete line for next chunk
+              for (let line of lines) {
+                if (line.trim() !== '') {
+                  xmlhtp = line;
+                  fullOutput += line + "\n";
+                  receiveOutput();
                 }
               }
-            }
+              return read();
+            });
           }
-        } catch (e) {
-          status = "Not found";
-        }
-      }
+          return read();
+        })
+        .catch((error) => {
+          document.getElementById("output").innerText = "Error: " + error;
+        });
+    }
 
-      function ReturnToCMS() {
-        window.opener.postMessage({ message: "cancel", result: true }, "*");
+    function receiveOutput() {
+      try {
+
+        // Error and status handling
+        if (fullOutput.indexOf("ERROR") > -1) {
+          res = "Device Error";
+          window.opener.postMessage({ message: res, result: true }, "*");
+        } else if (fullOutput.indexOf("TIMEOUT") > -1) {
+          res = "Operation Timed Out. Please Try again.";
+          window.opener.postMessage({ message: res, result: true }, "*");
+        } else if (fullOutput.indexOf("<<MATCH>>") > -1) {
+          if (document.forms[0].reregistration.value == "true") {
+            res = "Re-Registration Process is successful";
+            window.opener.postMessage({ message: res, result: true }, "*");
+          } else {
+            res = "Verified";
+            if (document.forms[0].crewid.value == "TEST") {
+              alert("Fingerprint Matched");
+            }
+            window.opener.postMessage({ message: res, result: true }, "*");
+          }
+        } else if (fullOutput.indexOf("<<NO MATCH>>") > -1) {
+          if (document.forms[0].reregistration.value == "true") {
+            res = "Re-Registration Process is failed. Please try again";
+            window.opener.postMessage({ message: res, result: true }, "*");
+          } else {
+            res = "Verification Failed. Please try again";
+            window.opener.postMessage({ message: res, result: true }, "*");
+          }
+        }
+      } catch (e) {
+        status="Not Found";
       }
-    </script>
-  </body>
+    }
+
+    function ReturnToCMS() {
+      window.opener.postMessage({ message: "cancel", result: true }, "*");
+    }
+  </script>
+</body>
+
 </html>

@@ -5,13 +5,12 @@ import com.cris.cms.image.services.LoginService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 
 @Controller
 @RequestMapping("/babio")
@@ -34,40 +33,51 @@ public class LoginController {
     }
 
     @PostMapping("/startBreath")
-public void startBreath(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
-    response.setContentType("text/plain");
-    response.setCharacterEncoding("UTF-8");
-    PrintWriter writer = response.getWriter();
+    public void startBreath(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter writer = response.getWriter();
 
-    // Call a new streaming method in your service
-    loginService.startBreath(loginForm, writer);
+        // Call a new streaming method in your service
+        loginService.startBreath(loginForm, writer);
 
-    writer.flush();
-}
+        writer.flush();
+    }
 
     @PostMapping("/initiateBio")
-    public String initiateBio(@ModelAttribute LoginForm loginForm, Model model) {
+    public String initiateBio(@ModelAttribute LoginForm loginForm, Model model) throws Exception{
         model.addAttribute("loginForm", loginForm);
         return loginService.initiateBio(loginForm, model);
     }
 
     @PostMapping("/bioVer")
-    @ResponseBody
-    public String bioVer(@ModelAttribute LoginForm loginForm, Model model) throws Exception {
-        return loginService.bioVer(loginForm, model).getBody();
+    public void bioVer(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter writer = response.getWriter();
+
+        loginService.bioVer(loginForm, writer);
+        writer.flush();
 
     }
 
     @PostMapping("/bioReg")
-    @ResponseBody
-    public String bioReg(
-            @ModelAttribute LoginForm loginForm, Model model) throws Exception {
-        return loginService.bioReg(loginForm, model).getBody();
+    public void bioReg(
+            @ModelAttribute LoginForm loginForm, HttpServletResponse response) throws Exception {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter writer = response.getWriter();
+        loginService.bioReg(loginForm, writer);
+        writer.flush();
     }
 
     @PostMapping("/deleteFPData")
-    public ResponseEntity<String> deleteFPData(@ModelAttribute LoginForm loginForm) {
-        return loginService.deleteFPData(loginForm);
+    public void deleteFPData(@ModelAttribute LoginForm loginForm, HttpServletResponse response) throws IOException {
+        response.setContentType("text/plain");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter writer = response.getWriter();
+        loginService.deleteFPData(loginForm, writer);
+        writer.flush();
     }
 
 }
