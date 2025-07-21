@@ -31,12 +31,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.client.RestTemplate;
 
+import com.cris.cms.BiometricApp;
+import com.cris.cms.Connect;
 import com.cris.cms.image.model.LoginForm;
 import com.cris.cms.image.utility.DBConnection;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class LoginService {
@@ -95,91 +95,97 @@ public class LoginService {
             db.closeCon();
         }
 
+        // BA LOGIC
+        int timeout = Integer.parseInt(loginForm.getTimeout());
+        Connect bt = new Connect();
         try {
-            killProcess("ba");
-            ProcessBuilder pb;
-            if (loginForm.getBarepeat().equals("true")) {
-                pb = new ProcessBuilder("./ba", "2", loginForm.getTimeout());
-            } else {
-                pb = new ProcessBuilder("./ba", "1", loginForm.getTimeout());
+            int portFound = -1;
+            for (int i = 0; i <= 30; i++) {
+                String portName = "/dev/ttyUSB" + i;
+                if (bt.openPort(portName)) {
+                    portFound = i;
+                    writer.println("Port found: " + portName);
+                    writer.flush();
+                    break;
+                }
             }
-            pb.directory(new File("/usr/local"));
-            Process p = pb.start();
+            if (portFound == -1) {
+                writer.println("NOOPEN");
+                writer.flush();
+                bt.closePort();
+                return;
+            }
 
-            String line = "";
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            if (!bt.isOn()) {
+                writer.println("Turning On. Please Wait...");
+                writer.flush();
+                bt.turnOn();
+                try {
+                    Thread.sleep(7000);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            bt.connectpc();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            if (!bt.checkReady()) {
+                writer.println("ERROR");
+                writer.flush();
+                bt.turnOff();
+                bt.closePort();
+                return;
+            }
+
+            writer.println("Please blow into the BA device");
+            writer.flush();
+
+            // BA reading logic (same as App.java)
+            boolean waiting = true;
+            long startTime = System.currentTimeMillis();
             boolean clicked = false;
+            while (waiting && (System.currentTimeMillis() - startTime) < timeout * 1000) {
+                int value = bt.readBreath();
+                String status = bt.getLastStatus();
 
-            System.out.println("cHECK 1 : ");
-
-            if (camstatus.equals("Y")) {
-                if (ba_device.equalsIgnoreCase("QTEL")) {
-                    while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        writer.println(line);
-                        writer.flush();
-                        System.out.println("Line : " + line);
-
-                        try {
-                            if (!clicked && line.contains("Blowing")) {
-                                click(crewid);
-                                clicked = true;
-                            }
-                            if (line.contains("Blow Failure")) {
-                                clicked = false;
-                                deleteImage();
-                            }
-                        } catch (NullPointerException e) {
-                            System.out.println("CAMERA ERROR: " + e);
-                            writer.println("CAMERA ERROR");
-                            writer.flush();
-                            break;
-                        }
-                    }
-                } else {
-                    while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        writer.println(line);
-                        writer.flush();
-
-                        try {
-                            if (!clicked && line.contains("Blowing")) {
-                                click(crewid);
-                                clicked = true;
-                            }
-                            if (line.contains("Blow Failure")) {
-                                clicked = false;
-                                deleteImage();
-                            }
-                        } catch (NullPointerException e) {
-                            System.out.println("CAMERA ERROR: " + e);
-                            writer.println("CAMERA ERROR");
-                            writer.flush();
-                            break;
-                        }
-                    }
+                if (!clicked && "Blowing".equals(status)) {
+                    click(crewid);
+                    clicked = true;
+                    writer.println("Blowing...");
+                    writer.flush();
                 }
-            } else {
-                if (ba_device.equalsIgnoreCase("KY8000_CMS")) {
-                    while (!(line.contains("calon")) && (line = r.readLine()) != null) {
-                        writer.println(line);
-                        writer.flush();
-
-                    }
-                } else if (ba_device.equalsIgnoreCase("QTEL")) {
-                    while (!(line.contains("&@")) && (line = r.readLine()) != null) {
-                        writer.println(line);
-                        writer.flush();
-
-                    }
-                } else {
-                    while (!(line.contains("Exhale time")) && (line = r.readLine()) != null) {
-                        writer.println(line);
-                        writer.flush();
-
-                    }
+                if ("Blow Failure".equals(status)) {
+                    clicked = false;
+                    deleteImage();
+                    writer.println("Blow Failure. Please blow continuously for 3 seconds");
+                    writer.flush();
                 }
+                if (value == -1) {
+                    writer.println("Problem reading BA device !");
+                    writer.flush();
+                    break;
+                } else if (value == 0) {
+                    writer.println("Analysis Complete");
+                    writer.println(bt.getDeviceOutput());
+                    writer.flush();
+                    bt.clearDeviceOutput();
+                    waiting = false;
+                }
+                Thread.sleep(200);
+            }
+            if (waiting) {
+                writer.println("TimeOut");
+                writer.flush();
+                bt.turnOff();
             }
 
-            System.out.println("cHECK 2 : ");
+            bt.enable();
+            bt.closePort();
+
+            System.out.println("CHECK 1 : ");
 
             writer.println(" image64:");
             if (camstatus.equals("Y")) {
@@ -204,10 +210,6 @@ public class LoginService {
             }
             writer.println(":image64ends:");
             writer.flush();
-
-            System.out.println("cHECK 3 : ");
-
-            r.close();
             writer.close();
         } catch (Exception e) {
             System.out.println("Ex : " + e);
@@ -529,40 +531,34 @@ public class LoginService {
         }
 
         try {
-            killProcess("bio");
-            ProcessBuilder pb = new ProcessBuilder("./bio", "V", crewid, first_finger, second_finger,
-                    loginForm.getTimeout());
-            pb.directory(new File("/usr/local"));
+            BiometricApp app = new BiometricApp();
+            boolean matched = false;
 
-            Process p = pb.start();
-
-            String line;
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            while ((line = r.readLine()) != null) {
-                writer.println(line);
-                writer.flush();
-
-                if (line.contains("<<NO MATCH>>")) { // IF VERIFICATION FAILS, DOWNLOAD THE LATEST FINGER PRINTS
-                    rs = db.executeQuery("SELECT peer_ip_v FROM peers");
-
-                    if (rs.next()) { // IF CENTRAL SERVER IP IS CONFIGURED IN THIS THIN CLIENT
-                        try {
-                            String output = getFPData(rs.getString("peer_ip_v"), crewid);
-
-                            if (!output.equals("[null]")) { // IF FP FOUND ON CENTRAL SERVER
-                                 parseJSONOutput(output, crewid);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            System.out.println("could not connect to remote");
-                        }
-                    }
-                }
-                System.out.println("Line : " + line);
+            if (app.verify(crewid, first_finger, 1, Integer.parseInt(loginForm.getTimeout()))) {
+                matched = true;
+            } else if (app.verify(crewid, second_finger, 1, Integer.parseInt(loginForm.getTimeout()))) {
+                matched = true;
             }
 
-            r.close();
+            if (matched) {
+                writer.println("<<MATCH>>");
+            } else {
+                writer.println("<<NO MATCH>>");
+                // IF VERIFICATION FAILS, DOWNLOAD THE LATEST FINGER PRINTS
+                rs = db.executeQuery("SELECT peer_ip_v FROM peers");
+                if (rs.next()) { // IF CENTRAL SERVER IP IS CONFIGURED IN THIS THIN CLIENT
+                    try {
+                        String output = getFPData(rs.getString("peer_ip_v"), crewid);
+                        if (!output.equals("[null]")) { // IF FP FOUND ON CENTRAL SERVER
+                            parseJSONOutput(output, crewid);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("could not connect to remote");
+                    }
+                }
+            }
+            writer.flush();
 
         } catch (Exception e) {
             System.out.println("Ex : " + e);
@@ -600,28 +596,18 @@ public class LoginService {
         }
 
         try {
-            killProcess("bio");
-            String dummy_value = "N"; // USED FOR DIFFERENCIATING THE RE-REGISTRATION CASE
-
-            if ("true".equals(reregistration)) {
-                dummy_value = "R"; // SPECIFIES THE RE-REGISTRATION CASE
+            BiometricApp app = new BiometricApp();
+            boolean result = app.fingerRegistration(
+                    crewid,
+                    finger,
+                    Integer.parseInt(loginForm.getTimeout()),
+                    reregistration);
+            if (result) {
+                writer.println("Registration Complete");
+            } else {
+                writer.println("Registration Failed");
             }
-
-            ProcessBuilder pb = new ProcessBuilder("./bio", "R", crewid, finger, dummy_value, loginForm.getTimeout());
-            pb.directory(new File("/usr/local"));
-
-            Process p = pb.start();
-
-            String line;
-            BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            while ((line = r.readLine()) != null) {
-                writer.println(line);
-                writer.flush();
-                System.out.println("Line : " + line);
-            }
-
-            r.close();
+            writer.flush();
 
         } catch (Exception e) {
             System.out.println("Ex : " + e);

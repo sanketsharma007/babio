@@ -17,7 +17,7 @@ public class LoginForm {
     private String first_finger;
     private String second_finger;
     private String reregistration = "false";
-    private String timeout = "10";
+    private String timeout = "30";
     private String barepeat = "false";
     private String crewstatus;
     private String signonid;

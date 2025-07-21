@@ -256,7 +256,7 @@
           document.getElementById("output").innerText = "Error: " + error;
         });
     }
-
+    let matchHandled = false;
     function receiveOutput() {
       try {
 
@@ -267,7 +267,8 @@
         } else if (fullOutput.indexOf("TIMEOUT") > -1) {
           res = "Operation Timed Out. Please Try again.";
           window.opener.postMessage({ message: res, result: true }, "*");
-        } else if (fullOutput.indexOf("<<MATCH>>") > -1) {
+        } else if (fullOutput.indexOf("<<MATCH>>") > -1 && !matchHandled) {
+          matchHandled = true;
           if (document.forms[0].reregistration.value == "true") {
             res = "Re-Registration Process is successful";
             window.opener.postMessage({ message: res, result: true }, "*");
@@ -288,7 +289,7 @@
           }
         }
       } catch (e) {
-        status="Not Found";
+        status = "Not Found";
       }
     }
 
